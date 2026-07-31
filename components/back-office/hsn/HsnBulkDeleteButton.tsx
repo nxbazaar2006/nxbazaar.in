@@ -1,0 +1,13 @@
+"use client";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import type { Table } from "@tanstack/react-table";
+import { Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
+import { deleteHsnCodes } from "@/actions/hsn-code";
+import type { HsnTableRow } from "@/types/hsn";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+export function HsnBulkDeleteButton({ table }: { table: Table<HsnTableRow> }) { const router = useRouter(); const [open, setOpen] = useState(false); const [isPending, startTransition] = useTransition(); const [skippedRecords, setSkippedRecords] = useState<Array<{ id: string; code: string; reason: string }>>([]); const selectedIds = table.getFilteredSelectedRowModel().rows.map((row) => row.original.id); const selectedCount = selectedIds.length; if (selectedCount === 0) return null; function handleDelete() { startTransition(async () => { const result = await deleteHsnCodes(selectedIds); if (!result.success) { toast.error(result.message); return; } toast.success(result.message); setSkippedRecords(result.data.skippedRecords); table.resetRowSelection(); router.refresh(); if (result.data.skippedRecords.length === 0) setOpen(false); }); } return ( <AlertDialog open={open} onOpenChange={setOpen}> <AlertDialogTrigger asChild><Button variant="destructive" size="sm"> <Trash2 className="mr-2 h-4 w-4" /> Delete Selected ({selectedCount}) </Button></AlertDialogTrigger> <AlertDialogContent> <AlertDialogHeader> <AlertDialogTitle>Delete {selectedCount} HSN Codes?</AlertDialogTitle> <AlertDialogDescription> Selected HSN codes will be permanently deleted. <br /> This action cannot be undone. </AlertDialogDescription> </AlertDialogHeader> {skippedRecords.length > 0 ? ( <details className="rounded-md border p-3 text-sm"> <summary className="cursor-pointer font-medium">{skippedRecords.length} skipped records</summary> <div className="mt-2 max-h-44 space-y-2 overflow-auto"> {skippedRecords.map((record) => ( <div key={record.id} className="rounded bg-slate-50 p-2"> <div className="font-medium">{record.code}</div> <div className="text-slate-600">{record.reason}</div> </div> ))} </div> </details> ) : null} <AlertDialogFooter> <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel> <Button variant="destructive" disabled={isPending} onClick={handleDelete}> <Trash2 className="h-4 w-4" /> {isPending ? "Deleting..." : `Delete ${selectedCount} Records`} </Button> </AlertDialogFooter> </AlertDialogContent> </AlertDialog> );
+}

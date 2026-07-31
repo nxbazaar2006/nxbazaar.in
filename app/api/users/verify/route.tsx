@@ -1,0 +1,7 @@
+import db from "@/lib/db";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { badRequest, checkRateLimit, getRequestClientKey, rateLimited, sanitizeUser,
+} from "@/lib/security"; const verifyUserSchema = z.object({ id: z.string().uuid(), token: z.string().min(16),
+});
+export async function PUT(request) { try { const rateLimit = checkRateLimit(getRequestClientKey(request, "verify-email"), { limit: 10, windowMs: 60_000, }); if (!rateLimit.ok) return rateLimited(rateLimit.retryAfterMs); const parsed = verifyUserSchema.safeParse(await request.json()); if (!parsed.success) return badRequest("Invalid verification payload"); const { id, token } = parsed.data; const updatedUser = await db.user.updateMany({ where: { id, verificationToken: token, }, data: { emailVerified: true, status: true, verificationToken: null, }, }); if (updatedUser.count !== 1) { return NextResponse.json({ data: null, message: "Invalid verification token" }, { status: 400 }); } const user = await db.user.findUnique({ where: { id } }); return NextResponse.json(user ? sanitizeUser(user) : null); } catch (error) { console.error(error); return NextResponse.json( { message: "Failed to Update User", error, }, { status: 500 } ); } } 

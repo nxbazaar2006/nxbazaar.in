@@ -1,0 +1,4 @@
+import FormHeader from "@/components/backoffice/FormHeader"; import NewTrainingForm, { type TrainingCategoryOption, type TrainingFormData } from "@/components/backoffice/NewTrainingForm";
+import { getData } from "@/lib/getData"; import { asArray } from "@/lib/normalizeApiData"; import React from "react";
+export default async function UpdateTraining({ params: { id } }) { const training = await getData<TrainingFormData>(`trainings/${id}`);
+const categoriesData = await getData<TrainingCategoryOption[]>("categories"); const categories = asArray(categoriesData).map((category) => { return { id: category.id, title: category.title, }; }); return ( <div> <FormHeader title="Update Training" /> <NewTrainingForm categories={categories} updateData={training} />; </div> ); } 

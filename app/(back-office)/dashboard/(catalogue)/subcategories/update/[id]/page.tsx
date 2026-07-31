@@ -1,0 +1,7 @@
+import SubCategoryForm, { type SubCategoryCategoryOption, type SubCategoryFormData, type SubCategoryOption } from "@/components/backoffice/Forms/SubCategoryForm";
+import FormHeader from "@/components/backoffice/FormHeader";
+import { getData } from "@/lib/getData";
+import { asArray, getApiMessage } from "@/lib/normalizeApiData";
+import React from "react";
+export default async function UpdateSubCategoryPage({ params }) { const { id } = await params; const [subCategory, categoriesData, subCategoriesData] = await Promise.all([ getData<SubCategoryFormData>(`subcategories/${id}`), getData<SubCategoryCategoryOption[]>("categories"), getData<SubCategoryOption[]>("subcategories"), ]); const categories = asArray<SubCategoryCategoryOption>(categoriesData).map((category) => ({ id: category.id, title: category.title, hsnCode: category.hsnCode, })); const subCategories = asArray(subCategoriesData).map((subCategory) => ({ id: subCategory.id, title: subCategory.title, categoryId: subCategory.categoryId, })); const categoryError = getApiMessage(categoriesData); return ( <div> <FormHeader title="Update Subcategory" /> {categoryError && ( <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"> Categories could not be loaded: {categoryError} </div> )} <SubCategoryForm updateData={subCategory} categories={categories} subCategories={subCategories} /> </div> );
+}

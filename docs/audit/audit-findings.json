@@ -1,0 +1,750 @@
+{
+  "auditDate": "2026-07-25",
+  "project": "Nxbazaar.in",
+  "readOnly": true,
+  "commands": [
+    {
+      "command": "Read AGENTS.md",
+      "status": "failed",
+      "details": "No AGENTS.md found anywhere outside .git, .next, node_modules, .pnpm-home, .pnpm-store."
+    },
+    {
+      "command": "Inspect complete repository",
+      "status": "passed",
+      "details": "411 files inspected outside generated/vendor/cache directories after docs/audit existed; 353 TS/TSX files, 46 API route files, 64 page files."
+    },
+    {
+      "command": "pnpm --version / pnpm install / pnpm scripts",
+      "status": "failed",
+      "details": "pnpm invocation in this sandbox previously failed with \"unable to open database file\" and then hung when invoked in sequences. Direct local binaries were used for verification evidence."
+    },
+    {
+      "command": "node_modules\\.bin\\eslint.cmd .",
+      "status": "passed",
+      "details": "Exit code 0."
+    },
+    {
+      "command": "node_modules\\.bin\\tsc.cmd --noEmit",
+      "status": "passed",
+      "details": "Exit code 0."
+    },
+    {
+      "command": "node_modules\\.bin\\prisma.cmd validate",
+      "status": "passed",
+      "details": "Exit code 0; schema at prisma/schema.prisma is valid."
+    },
+    {
+      "command": "node_modules\\.bin\\prisma.cmd generate",
+      "status": "passed",
+      "details": "Exit code 0; Prisma Client v7.9.0 generated."
+    },
+    {
+      "command": "node_modules\\.bin\\next.cmd build",
+      "status": "failed",
+      "details": "Exit code 1; next/font/google failed to fetch Inter from fonts.googleapis.com, import trace app/layout.tsx."
+    },
+    {
+      "command": "node_modules\\.bin\\tsx.cmd scripts/test-translation-queue.ts",
+      "status": "passed",
+      "details": "Exit code 0; translation queue tests passed."
+    },
+    {
+      "command": "node_modules\\.bin\\tsx.cmd scripts/check-redis.ts",
+      "status": "failed",
+      "details": "Exit code 1; REDIS_URL is not configured."
+    }
+  ],
+  "summary": {
+    "bySeverity": {
+      "Critical": 6,
+      "High": 10,
+      "Medium": 15,
+      "Low": 4,
+      "Info": 2
+    },
+    "byClassification": {
+      "Security risks": 12,
+      "Confirmed defects": 12,
+      "Missing features": 4,
+      "Technical debt": 6,
+      "Architecture concerns": 2,
+      "Optional improvements": 1
+    },
+    "top10RecommendedActions": [
+      "Protect public mutation and list API routes with centralized auth/role/scope wrappers.",
+      "Fix password reset and email verification token validation immediately.",
+      "Derive checkout userId from the authenticated session and validate checkout payloads server-side.",
+      "Make stock decrement atomic and move checkout to seller-wise Inventory as source of truth.",
+      "Persist order, seller-order and invoice GST totals from immutable item tax snapshots.",
+      "Self-host fonts so production builds do not require Google Fonts network access.",
+      "Remove typescript.ignoreBuildErrors and enforce typecheck/build in CI.",
+      "Add payment provider webhook, refund, return and reconciliation workflows.",
+      "Add full Zod schemas for products, checkout, auth and admin CRUD APIs.",
+      "Add pnpm test with coverage for auth, checkout, tax, inventory and seller isolation."
+    ],
+    "criticalHighReview": {
+      "reviewedAt": "2026-07-25",
+      "reviewedCount": 16,
+      "byStatus": {
+        "Confirmed": 16
+      },
+      "note": "All Critical and High findings were re-opened against source code. No application code was modified."
+    },
+    "lastFixPass": {
+      "date": "2026-07-25",
+      "scope": "Confirmed build, lint, TypeScript and Prisma validation errors only",
+      "fixedFindingIds": [
+        "NX-HIGH-007",
+        "NX-HIGH-008"
+      ],
+      "commands": [
+        {
+          "command": "node_modules\\.bin\\eslint.cmd .",
+          "status": "passed",
+          "details": "Exit code 0"
+        },
+        {
+          "command": "node_modules\\.bin\\tsc.cmd --noEmit",
+          "status": "passed",
+          "details": "Exit code 0"
+        },
+        {
+          "command": "node_modules\\.bin\\prisma.cmd validate",
+          "status": "passed",
+          "details": "Exit code 0; schema is valid"
+        },
+        {
+          "command": "node_modules\\.bin\\next.cmd build",
+          "status": "passed",
+          "details": "Exit code 0; production build completed successfully"
+        }
+      ]
+    },
+    "lastSecurityFixPass": {
+      "date": "2026-07-25",
+      "fixedFindingIds": [
+        "NX-CRIT-001",
+        "NX-CRIT-002",
+        "NX-CRIT-003",
+        "NX-CRIT-004",
+        "NX-CRIT-005",
+        "NX-CRIT-006",
+        "NX-HIGH-001",
+        "NX-HIGH-002",
+        "NX-HIGH-003",
+        "NX-HIGH-009"
+      ],
+      "commands": [
+        {
+          "command": "node_modules\\.bin\\eslint.cmd .",
+          "status": "passed"
+        },
+        {
+          "command": "node_modules\\.bin\\tsc.cmd --noEmit",
+          "status": "passed"
+        },
+        {
+          "command": "node_modules\\.bin\\prisma.cmd validate",
+          "status": "passed"
+        },
+        {
+          "command": "npm test -- --test-reporter=spec",
+          "status": "passed",
+          "details": "10 security tests passed"
+        },
+        {
+          "command": "node_modules\\.bin\\next.cmd build",
+          "status": "passed"
+        }
+      ]
+    },
+    "lastCommerceFixPass": {
+      "date": "2026-07-25",
+      "scope": "Confirmed Prisma, database and ecommerce business-logic findings in checkout/order persistence",
+      "fixedFindingIds": [
+        "NX-HIGH-004",
+        "NX-HIGH-006"
+      ],
+      "partiallyFixedFindingIds": [
+        "NX-HIGH-005"
+      ],
+      "commands": [
+        {
+          "command": "node_modules\\.bin\\prisma.cmd validate",
+          "status": "passed",
+          "details": "Exit code 0; schema at prisma/schema.prisma is valid"
+        },
+        {
+          "command": "node_modules\\.bin\\eslint.cmd .",
+          "status": "passed",
+          "details": "Exit code 0"
+        },
+        {
+          "command": "node_modules\\.bin\\tsc.cmd --noEmit",
+          "status": "passed",
+          "details": "Exit code 0"
+        },
+        {
+          "command": "npm test -- --test-reporter=spec",
+          "status": "passed",
+          "details": "Exit code 0; 15 tests passed"
+        },
+        {
+          "command": "node_modules\\.bin\\next.cmd build",
+          "status": "passed",
+          "details": "Exit code 0; production build completed successfully"
+        }
+      ],
+      "migration": {
+        "created": false,
+        "reason": "Existing schema already has Order totals, SellerOrder, OrderItem snapshots and Inventory. The remaining Inventory partial unique index requires duplicate-data preflight before migration."
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "NX-CRIT-001",
+      "severity": "Critical",
+      "bucket": "Security risks",
+      "category": "API authorization",
+      "filePath": "app/api/staffs/route.tsx:3",
+      "evidence": "Fixed by requiring ADMIN session in app/api/staffs/route.tsx, validating payload with Zod, and omitting password from the response. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Staff creation is publicly callable and does not hash the supplied password before returning the created object.",
+      "businessImpact": "Unauthenticated users can create staff-like records or poison staff data; plaintext password handling would compromise accounts if wired to persistence.",
+      "recommendedSolution": "Require ADMIN session, validate input with Zod, hash passwords with bcrypt, persist through Prisma intentionally, and return a sanitized response.",
+      "verificationSteps": "Unauthenticated POST /api/staffs should return 401; USER/SELLER should return 403; ADMIN creation should store a bcrypt hash and omit password in response.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-CRIT-002",
+      "severity": "Critical",
+      "bucket": "Security risks",
+      "category": "API authorization",
+      "filePath": "app/api/users/route.tsx:86",
+      "evidence": "Fixed by requiring ADMIN session for app/api/users/route.tsx GET and sanitizing returned users. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "The users list endpoint exposes all user records publicly.",
+      "businessImpact": "Customer, seller, admin and credential-adjacent account data can be enumerated by unauthenticated clients.",
+      "recommendedSolution": "Protect with ADMIN-only authorization, select minimal fields, paginate, and avoid returning password/verificationToken fields.",
+      "verificationSteps": "Unauthenticated GET /api/users returns 401; non-admin returns 403; admin response excludes password and tokens.",
+      "estimatedComplexity": "Small",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-CRIT-003",
+      "severity": "Critical",
+      "bucket": "Security risks",
+      "category": "Authentication and account verification",
+      "filePath": "app/api/users/verify/route.tsx:4",
+      "evidence": "Fixed by requiring id+verification token in app/api/users/verify/route.tsx, rate limiting attempts, updating by matching verificationToken, and clearing the token after use. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Email verification can be completed by knowing or guessing a user id.",
+      "businessImpact": "Attackers can mark accounts verified without mailbox control, weakening seller/customer onboarding trust.",
+      "recommendedSolution": "Require id plus verification token, store token expiry, use constant-time comparison or hashed tokens, clear token after use.",
+      "verificationSteps": "PUT /api/users/verify with only an id should fail; valid id+token succeeds once and cannot be reused.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-CRIT-004",
+      "severity": "Critical",
+      "bucket": "Security risks",
+      "category": "Password reset",
+      "filePath": "app/api/users/update-password/route.tsx:4",
+      "evidence": "Fixed by requiring id+reset token in app/api/users/update-password/route.tsx, rate limiting attempts, updating by matching verificationToken, and clearing the token after use. Forgot-password now stores the generated token. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Password reset trusts client-supplied id and has no token validation.",
+      "businessImpact": "Anyone who can call the endpoint can change another account password if they know the user id.",
+      "recommendedSolution": "Require a valid unexpired reset token tied to the user, hash and store token server-side, invalidate after use, and rate-limit attempts.",
+      "verificationSteps": "PUT /api/users/update-password with id+password and no token must fail; valid token succeeds once.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-CRIT-005",
+      "severity": "Critical",
+      "bucket": "Security risks",
+      "category": "API authorization",
+      "filePath": "app/api/orders/user/[id]/route.tsx:4",
+      "evidence": "Fixed by requiring a session in app/api/orders/user/[id]/route.tsx and allowing only owner-or-admin access. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Customer order lookup trusts the URL user id.",
+      "businessImpact": "Any caller can retrieve another customer order history by changing the id.",
+      "recommendedSolution": "Require session; allow ADMIN or session.user.id === params.id; sellers should use seller-scoped order APIs.",
+      "verificationSteps": "USER A requesting USER B orders should receive 403; unauthenticated request should receive 401.",
+      "estimatedComplexity": "Small",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-CRIT-006",
+      "severity": "Critical",
+      "bucket": "Security risks",
+      "category": "Checkout identity",
+      "filePath": "app/api/orders/route.tsx:6",
+      "evidence": "Fixed by requiring an authenticated session in app/api/orders/route.tsx POST, validating checkout payload with Zod, and deriving userId from session.user.id instead of request body. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Order creation trusts the client-supplied user id.",
+      "businessImpact": "Orders can be created under another account, corrupting order ownership, invoice ownership, and customer history.",
+      "recommendedSolution": "Require getServerSession and derive userId from session.user.id; reject mismatched body ids; validate checkout data server-side.",
+      "verificationSteps": "Authenticated USER A posting body userId of USER B should create under USER A or fail with 403.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-001",
+      "severity": "High",
+      "bucket": "Security risks",
+      "category": "Admin/catalog API authorization",
+      "filePath": "app/api/categories/route.tsx:6",
+      "evidence": "Fixed for audited back-office mutation surface by adding admin guards to staff, category, banner, market, farmer, subcategory, training and HSN write routes; coupon writes are authenticated and seller-scoped. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Back-office mutation APIs are largely public.",
+      "businessImpact": "Unauthenticated users can alter catalog, promotions, tax master, and content data.",
+      "recommendedSolution": "Add deny-by-default auth wrappers for route handlers and enforce ADMIN/SELLER ownership per resource.",
+      "verificationSteps": "Unauthenticated POST/PUT/DELETE against catalog routes should return 401; wrong role should return 403.",
+      "estimatedComplexity": "Large",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-002",
+      "severity": "High",
+      "bucket": "Security risks",
+      "category": "Dashboard authorization",
+      "filePath": "proxy.ts:3",
+      "evidence": "Fixed by adding dashboard route role matrix enforcement in proxy.ts via canAccessDashboardPath. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Dashboard routing requires login but not role authorization.",
+      "businessImpact": "A normal USER can potentially access admin or seller pages by URL if page-level checks are absent.",
+      "recommendedSolution": "Define route-to-role matrix and enforce it in middleware or dashboard layouts plus server-side data access.",
+      "verificationSteps": "Sign in as USER and request admin/seller dashboard URLs; expect 403/redirect.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-003",
+      "severity": "High",
+      "bucket": "Security risks",
+      "category": "Seller data isolation",
+      "filePath": "app/(back-office)/dashboard/vendor/orders/page.tsx:18",
+      "evidence": "Fixed by requiring authentication in app/api/sales/route.tsx and scoping non-admin queries to vendorId=session.user.id. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Seller order filtering is performed after fetching all seller sales data.",
+      "businessImpact": "Seller data can leak over the API and increases blast radius if a client can call /api/sales directly.",
+      "recommendedSolution": "Move seller filtering into authenticated server/API query: ADMIN gets all, SELLER gets where vendorId=session.user.id.",
+      "verificationSteps": "SELLER GET /api/sales should return only own sales; direct API response must not contain other sellers.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-004",
+      "severity": "High",
+      "bucket": "Confirmed defects",
+      "category": "Inventory consistency",
+      "filePath": "app/api/orders/route.tsx:81",
+      "evidence": "Fixed in app/api/orders/route.tsx by replacing read/check/update stock deductions with conditional updateMany calls: ProductVariant stock uses stock >= quantity at lines 168-173 and simple Product stock uses productStock >= quantity at lines 238-243. Both paths throw out-of-stock when update count is not 1. Verification passed: Prisma validate, lint, typecheck, tests and production build.",
+      "description": "Stock decrement is now atomic for product and variant stock in checkout.",
+      "businessImpact": "Concurrent purchases can oversell the last unit.",
+      "recommendedSolution": "Keep checkout stock deduction inside the transaction and add a live concurrent checkout integration test against PostgreSQL.",
+      "verificationSteps": "Run two concurrent checkout requests for the final unit; exactly one should commit. Static verification: app/api/orders/route.tsx contains conditional updateMany stock >= quantity guards.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "The non-atomic read/check/update pattern is present in code; a concurrent checkout test is still required to observe oversell in a live DB.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-005",
+      "severity": "High",
+      "bucket": "Confirmed defects",
+      "category": "Seller-wise inventory",
+      "filePath": "prisma/schema.prisma:589",
+      "evidence": "Partially fixed in app/api/orders/route.tsx. Checkout now reads/creates seller Inventory rows and decrements existing Inventory.quantity atomically with quantity >= requested quantity at lines 83-113, in the same transaction as Product/ProductVariant stock deduction. Remaining schema risk: Prisma @@unique([productId, productVariantId, sellerId]) does not prevent duplicate simple-product rows in PostgreSQL when productVariantId is NULL; no migration was created in this pass.",
+      "description": "Checkout no longer fully bypasses the seller-wise Inventory table, but the database still needs a partial unique index for simple-product inventory rows and a backfill/preflight before Inventory can be the sole source of truth.",
+      "businessImpact": "Marketplace stock, seller dashboards, and fulfillment can diverge from actual sellable inventory.",
+      "recommendedSolution": "Add a PostgreSQL preflight for duplicate simple Inventory rows, then create a partial unique index on Inventory(productId, sellerId) WHERE productVariantId IS NULL; after backfill, make checkout rely on Inventory as the primary stock source.",
+      "verificationSteps": "Checkout should update Inventory.quantity for the correct seller/product/variant. Migration preflight should verify no duplicate simple-product Inventory rows before creating the partial unique index.",
+      "estimatedComplexity": "Large",
+      "status": "Partially fixed",
+      "reproducibility": "Checkout code path bypasses the seller-wise Inventory model entirely.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-006",
+      "severity": "High",
+      "bucket": "Confirmed defects",
+      "category": "GST/order totals",
+      "filePath": "app/api/orders/route.tsx:172",
+      "evidence": "Fixed in app/api/orders/route.tsx and lib/orders/checkout-calculations.ts. Checkout now aggregates immutable item snapshots with calculateOrderTotals at line 306, persists Order subtotal/tax/grandTotal fields at lines 307-319, creates SellerOrder totals at lines 322-342, and links OrderItem rows to sellerOrderId at line 346. tests/ecommerce.test.ts verifies GST split and order/seller total snapshots.",
+      "description": "Order-level GST and grand totals are persisted from item tax snapshots during checkout.",
+      "businessImpact": "Invoices, admin reporting, payment reconciliation and GST returns can be wrong.",
+      "recommendedSolution": "Add a database-backed checkout integration test that creates taxable items and verifies Order, SellerOrder, OrderItem and Sale rows after commit.",
+      "verificationSteps": "npm test -- --test-reporter=spec; create a taxable order and verify Order.subtotal, taxTotal, grandTotal and SellerOrder totals equal item sums.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Order aggregate tax/total fields remain their schema defaults during the observed create-order path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-007",
+      "severity": "High",
+      "bucket": "Confirmed defects",
+      "category": "Production build",
+      "filePath": "app/layout.tsx:1",
+      "evidence": "Fixed on 2026-07-25: app/layout.tsx no longer imports Inter from next/font/google and <body> no longer depends on inter.className. Verification: node_modules\\.bin\\next.cmd build exited 0 and completed production build successfully.",
+      "description": "Production build depends on network access to Google Fonts.",
+      "businessImpact": "CI or deployment with restricted egress cannot produce a build artifact.",
+      "recommendedSolution": "Self-host the font with next/font/local or remove external font dependency.",
+      "verificationSteps": "Run node_modules\\.bin\\next.cmd build; expected exit code 0 with no Google Fonts fetch failure.",
+      "estimatedComplexity": "Small",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible via build failure. No longer reproducible after removing next/font/google dependency; production build now passes.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-008",
+      "severity": "High",
+      "bucket": "Confirmed defects",
+      "category": "Deployment quality gate",
+      "filePath": "next.config.ts:16",
+      "evidence": "Fixed on 2026-07-25: next.config.ts no longer contains typescript.ignoreBuildErrors. Verification: node_modules\\.bin\\tsc.cmd --noEmit exited 0 and node_modules\\.bin\\next.cmd build exited 0 while running TypeScript during build.",
+      "description": "Production builds are configured to ignore TypeScript errors.",
+      "businessImpact": "Broken typed contracts can ship to production even when typecheck fails.",
+      "recommendedSolution": "Remove ignoreBuildErrors and enforce typecheck before build in CI.",
+      "verificationSteps": "Run node_modules\\.bin\\tsc.cmd --noEmit and node_modules\\.bin\\next.cmd build; both should exit 0, and future TypeScript build errors should fail the build.",
+      "estimatedComplexity": "Small",
+      "status": "Fixed",
+      "reproducibility": "Previously confirmed by next.config.ts lines 16-18. No longer present in current next.config.ts.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-009",
+      "severity": "High",
+      "bucket": "Security risks",
+      "category": "Upload security",
+      "filePath": "app/api/uploadthing/core.tsx:8",
+      "evidence": "Fixed by adding Uploadthing middleware that requires a NextAuth JWT token and records uploadedBy from token.id instead of hard-coded metadata. Verification: eslint, typecheck, Prisma validate, security tests, and production build passed.",
+      "description": "Uploadthing routes lack authenticated ownership/role checks.",
+      "businessImpact": "Unauthenticated or wrong-role users may upload images into application storage and associate misleading ownership metadata.",
+      "recommendedSolution": "Add Uploadthing middleware that requires session and route-specific roles; return real user id metadata.",
+      "verificationSteps": "Unauthenticated upload attempts fail; successful uploads contain session user id.",
+      "estimatedComplexity": "Medium",
+      "status": "Fixed",
+      "reproducibility": "Previously reproducible from missing route/session checks. Guard and test coverage now prevent the audited path.",
+      "reviewedAt": "2026-07-25",
+      "fixedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-HIGH-010",
+      "severity": "High",
+      "bucket": "Missing features",
+      "category": "Payment/refund flow",
+      "filePath": "components/Checkout/StepForms/PaymentMethodForm.tsx:52",
+      "evidence": "Reopened components/Checkout/StepForms/PaymentMethodForm.tsx and payment dashboard. Payment form lines 52-95 only renders Cash On Delivery and Credit Card choices and advances Redux state. app/(back-office)/dashboard/payments/page.tsx lines 6-11 loads categories data into payment columns. File inventory found no app/api payment, refund or webhook routes and no refund files.",
+      "description": "Payment and refund workflows are placeholders/incomplete.",
+      "businessImpact": "Orders cannot be reliably paid, refunded, reconciled, or settled for sellers.",
+      "recommendedSolution": "Implement payment provider integration, payment status webhook, refund model/API, idempotency and reconciliation dashboards.",
+      "verificationSteps": "End-to-end payment succeeds, webhook updates Payment/Order, refund creates auditable records.",
+      "estimatedComplexity": "Large",
+      "status": "Confirmed",
+      "reproducibility": "Payment/refund flow is incomplete in code and route inventory.",
+      "reviewedAt": "2026-07-25"
+    },
+    {
+      "id": "NX-MED-001",
+      "severity": "Medium",
+      "bucket": "Technical debt",
+      "category": "TypeScript strictness",
+      "filePath": "tsconfig.json:10",
+      "evidence": "Lines 10-12 set allowJs true, skipLibCheck true and strict false.",
+      "description": "TypeScript is not running in strict mode.",
+      "businessImpact": "Null, unsafe field access and weak domain contracts can escape compile-time detection.",
+      "recommendedSolution": "Enable strict incrementally by folders, starting with lib/domain, API routes and checkout.",
+      "verificationSteps": "tsc --noEmit passes with strict true or a staged strict tsconfig for critical folders.",
+      "estimatedComplexity": "Large"
+    },
+    {
+      "id": "NX-MED-002",
+      "severity": "Medium",
+      "bucket": "Technical debt",
+      "category": "Lint coverage",
+      "filePath": "eslint.config.mjs:29",
+      "evidence": "Lines 29-34 disable react-hooks/rules-of-hooks, react-hooks/set-state-in-effect, react/jsx-key and other rules.",
+      "description": "Important React correctness rules are disabled.",
+      "businessImpact": "Hook misuse and missing keys can ship despite lint passing.",
+      "recommendedSolution": "Re-enable rules and fix resulting violations in small batches.",
+      "verificationSteps": "eslint fails on intentional hook rule violations and passes after fixes.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-003",
+      "severity": "Medium",
+      "bucket": "Confirmed defects",
+      "category": "Product validation",
+      "filePath": "lib/validations/product.ts:3",
+      "evidence": "Lines 3-8 validate only categoryId, subCategoryId, hsnCodeId and hsnOverrideEnabled; NewProductForm useForm at lines 234-245 has no Zod resolver.",
+      "description": "Product form/API validation is incomplete for prices, stock, SKU, barcode, variants and SEO fields.",
+      "businessImpact": "Invalid catalog data can reach APIs and fail late or persist inconsistently.",
+      "recommendedSolution": "Create a full shared Zod product schema and use it in React Hook Form and API handlers.",
+      "verificationSteps": "Negative price, missing SKU, duplicate barcode and invalid variants should produce field/API errors.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-004",
+      "severity": "Medium",
+      "bucket": "Confirmed defects",
+      "category": "Cart consistency",
+      "filePath": "redux/slices/cartSlice.ts:54",
+      "evidence": "Lines 54-56 and 78-82 increment quantity without stock limits; AddToCartButton lines 11-18 dispatches simple products without stock checks.",
+      "description": "Cart can exceed available stock before checkout.",
+      "businessImpact": "Customers experience late checkout failures and unreliable availability.",
+      "recommendedSolution": "Carry stock and variant availability into cart items, cap quantity, and revalidate server-side before order placement.",
+      "verificationSteps": "Product with stock 1 cannot be increased to quantity 2 in cart.",
+      "estimatedComplexity": "Small"
+    },
+    {
+      "id": "NX-MED-005",
+      "severity": "Medium",
+      "bucket": "Confirmed defects",
+      "category": "Client checkout totals",
+      "filePath": "components/Checkout/StepForms/OrderSummary.tsx:41",
+      "evidence": "Lines 41-45 compute subtotal from cart salePrice; lines 136-143 compute total as shipping plus subtotal only. No GST/discount/seller split is shown.",
+      "description": "Checkout UI totals do not include GST tax lines.",
+      "businessImpact": "Customer-facing total may differ from statutory invoice/payment totals.",
+      "recommendedSolution": "Fetch server-priced checkout quote including GST, shipping, discounts and grand total; render CGST/SGST/IGST breakdown.",
+      "verificationSteps": "Checkout for taxable item displays matching tax and grand total returned by server quote API.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-006",
+      "severity": "Medium",
+      "bucket": "Confirmed defects",
+      "category": "Invoice accuracy",
+      "filePath": "components/Order/SalesInvoice.tsx:1",
+      "evidence": "Invoice component renders an order but order creation does not persist order aggregate GST totals, and invoice page app/(back-office)/dashboard/orders/[id]/invoice/page.tsx lines 5-7 fetches any order id without local auth check.",
+      "description": "Invoice rendering depends on incomplete and weakly protected order data.",
+      "businessImpact": "GST invoices can be inaccurate or exposed by URL.",
+      "recommendedSolution": "Persist immutable invoice snapshots at order/payment time and protect invoice route by owner/admin/seller scope.",
+      "verificationSteps": "Invoice totals match OrderItem tax snapshots and unauthorized users cannot load other invoices.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-007",
+      "severity": "Medium",
+      "bucket": "Architecture concerns",
+      "category": "App Router error states",
+      "filePath": "app/loading.tsx:1",
+      "evidence": "Only app/loading.tsx exists; repository inventory found no error.tsx or not-found.tsx files. Localized pages use notFound(), but no custom not-found boundary exists.",
+      "description": "Error and not-found handling is incomplete across route groups.",
+      "businessImpact": "Users see generic failures and recovery paths during broken fetches or missing products/categories.",
+      "recommendedSolution": "Add route-group error.tsx, not-found.tsx, and empty states for storefront and dashboard tables.",
+      "verificationSteps": "Force product/category/order not found and API failure; UI shows branded actionable states.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-008",
+      "severity": "Medium",
+      "bucket": "Technical debt",
+      "category": "Server/client boundaries",
+      "filePath": "components/Checkout/NavButtons.tsx:5",
+      "evidence": "Static scan found React Redux hooks in components/Checkout/NavButtons.tsx and components/Onboarding/NavButtons.tsx without a top-level \"use client\" directive.",
+      "description": "Some hook-using components rely on being imported only from client parents instead of declaring their own client boundary.",
+      "businessImpact": "Future server imports can cause App Router build/runtime errors.",
+      "recommendedSolution": "Add explicit \"use client\" to hook-using components or split server/client components clearly.",
+      "verificationSteps": "Import components from server page in a test branch; build should not fail due missing client directive.",
+      "estimatedComplexity": "Small"
+    },
+    {
+      "id": "NX-MED-009",
+      "severity": "Medium",
+      "bucket": "Confirmed defects",
+      "category": "SEO/metadata",
+      "filePath": "app/layout.tsx:7",
+      "evidence": "Lines 7-10 set title \"Limi Ecommerce\" and description \"Generated by create next app\"; line 14 hardcodes html lang=\"en\" while app/[lang] routes exist.",
+      "description": "Global metadata and language do not match Nxbazaar.in or localized pages.",
+      "businessImpact": "Poor search snippets, brand inconsistency and incorrect language semantics for Hindi/Marathi.",
+      "recommendedSolution": "Set Nxbazaar.in metadata, add generateMetadata for product/category pages and localized html lang/alternate links.",
+      "verificationSteps": "Rendered /, /hi and /mr HTML has correct title, description, lang and alternates.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-010",
+      "severity": "Medium",
+      "bucket": "Confirmed defects",
+      "category": "Image optimization",
+      "filePath": "components/frontend/ProductImageCarousel.tsx:52",
+      "evidence": "Lines 52 and 69 use raw img tags with empty alt text; other raw img usage appears in BlogCard, blogs detail, Footer, RecentTrainings and OrderCard.",
+      "description": "Key product/content images bypass next/image optimization and have weak alt text.",
+      "businessImpact": "Slower LCP, poorer accessibility and less predictable image sizing.",
+      "recommendedSolution": "Use next/image with stable dimensions/sizes and meaningful alt text for product/content images.",
+      "verificationSteps": "Lighthouse image audits pass and product carousel images expose meaningful accessible names.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-011",
+      "severity": "Medium",
+      "bucket": "Security risks",
+      "category": "Error disclosure",
+      "filePath": "app/api/orders/route.tsx:207",
+      "evidence": "Lines 207-212 return JSON containing raw error; similar error, fields appear across many API routes.",
+      "description": "API routes return raw error objects to clients.",
+      "businessImpact": "Implementation details or sensitive database errors can leak to users/attackers.",
+      "recommendedSolution": "Log server-side, return safe error codes/messages, and map expected validation errors explicitly.",
+      "verificationSteps": "Force Prisma error and response contains only safe code/message, not stack/database object.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-MED-012",
+      "severity": "Medium",
+      "bucket": "Security risks",
+      "category": "Auth status enforcement",
+      "filePath": "lib/authOptions.ts:46",
+      "evidence": "Lines 46-54 return user with status and emailVerified, but authorize does not reject status=false or unverified users.",
+      "description": "Inactive or unverified accounts can authenticate.",
+      "businessImpact": "Suspended sellers/users or unverified accounts may access protected areas.",
+      "recommendedSolution": "Enforce status/emailVerified policy during authorize or in route guards according to role requirements.",
+      "verificationSteps": "Inactive account login fails or receives restricted session with no dashboard/API access.",
+      "estimatedComplexity": "Small"
+    },
+    {
+      "id": "NX-MED-013",
+      "severity": "Medium",
+      "bucket": "Missing features",
+      "category": "Product audit logs",
+      "filePath": "prisma/schema.prisma:1268",
+      "evidence": "AuditLog model exists at lines 1268-1276, and ProductHistory exists in schema, but feature inventory found no audit/history routes or dashboard pages outside schema/product history writes.",
+      "description": "Audit trail is modeled but not exposed as a reviewable admin/seller feature.",
+      "businessImpact": "Operational teams cannot trace changes, investigate disputes or satisfy audit requirements efficiently.",
+      "recommendedSolution": "Create audit log service and dashboards for product, order, inventory, HSN and user role changes.",
+      "verificationSteps": "Changing product/HSN/order status creates visible immutable audit entries with actor and before/after values.",
+      "estimatedComplexity": "Large"
+    },
+    {
+      "id": "NX-MED-014",
+      "severity": "Medium",
+      "bucket": "Missing features",
+      "category": "Multilingual completeness",
+      "filePath": "lib/i18n/languages.ts:1",
+      "evidence": "Language files exist and app/[lang] routes exist, but root layout hardcodes lang=\"en\" and scan found metadata only in app/layout.tsx; not all front-end routes have [lang] equivalents.",
+      "description": "English/Hindi/Marathi implementation is partial.",
+      "businessImpact": "Localized users may hit English-only pages, incorrect metadata and inconsistent URL coverage.",
+      "recommendedSolution": "Define locale middleware/routing, localized layouts, metadata, and complete translation coverage for storefront flows.",
+      "verificationSteps": "For en/hi/mr, product/category/cart/checkout/support pages render translated UI and correct lang metadata.",
+      "estimatedComplexity": "Large"
+    },
+    {
+      "id": "NX-MED-015",
+      "severity": "Medium",
+      "bucket": "Missing features",
+      "category": "Marketplace features",
+      "filePath": "prisma/schema.prisma:1102",
+      "evidence": "Payment and seller wallet models exist, but feature inventory found no refund files, no wishlist/review/returns implementation files, and no payment provider API/webhook routes.",
+      "description": "Important marketplace workflows are missing or only represented in schema.",
+      "businessImpact": "Customer trust, seller operations and support workflows are incomplete for production marketplace use.",
+      "recommendedSolution": "Prioritize refunds/returns, reviews, wishlist, payment webhooks, seller settlements and support dispute workflows.",
+      "verificationSteps": "End-to-end tests cover payment, refund, return, review and seller payout lifecycle.",
+      "estimatedComplexity": "Large"
+    },
+    {
+      "id": "NX-LOW-001",
+      "severity": "Low",
+      "bucket": "Technical debt",
+      "category": "Environment validation",
+      "filePath": "lib/env.ts:39",
+      "evidence": "getAppEnv validates env with Zod at lines 39-47, but db.ts reads process.env.DATABASE_URL directly at lines 8-10 and several routes/components read process.env directly.",
+      "description": "Central environment validation exists but is not consistently used.",
+      "businessImpact": "Missing config fails late at runtime, as seen in Redis check failure.",
+      "recommendedSolution": "Import getAppEnv in server modules and expose a typed public env helper for NEXT_PUBLIC values.",
+      "verificationSteps": "Missing required env fails at startup with one clear message before serving requests.",
+      "estimatedComplexity": "Small"
+    },
+    {
+      "id": "NX-LOW-002",
+      "severity": "Low",
+      "bucket": "Technical debt",
+      "category": "Package scripts",
+      "filePath": "package.json:6",
+      "evidence": "Scripts include dev/build/start/lint/typecheck and translation/redis helpers, but no general \"test\" script.",
+      "description": "There is no standard test command.",
+      "businessImpact": "CI cannot run a unified regression suite for checkout, auth, inventory and tax logic.",
+      "recommendedSolution": "Add a test runner and define pnpm test; keep test:translations as a targeted script.",
+      "verificationSteps": "pnpm test runs unit/integration tests and exits nonzero on failures.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-LOW-003",
+      "severity": "Low",
+      "bucket": "Technical debt",
+      "category": "Dependency health",
+      "filePath": "package.json:18",
+      "evidence": "Dependencies include both flowbite/flowbite-react and shadcn/Radix-style components; carousel libraries include nuka-carousel, react-multi-carousel and swiper.",
+      "description": "UI/dependency stack has overlapping packages.",
+      "businessImpact": "Bundle size, design consistency and maintenance burden increase.",
+      "recommendedSolution": "Choose primary UI and carousel stacks; remove unused packages after usage audit.",
+      "verificationSteps": "Bundle analyzer confirms removed unused dependencies and no import regressions.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-LOW-004",
+      "severity": "Low",
+      "bucket": "Optional improvements",
+      "category": "Accessibility",
+      "filePath": "components/FormInputs/TextInput.tsx:37",
+      "evidence": "Lines 37-49 render input and error text, but do not set aria-invalid or aria-describedby linking the error.",
+      "description": "Form error accessibility can be improved.",
+      "businessImpact": "Screen-reader users may not receive clear field error context.",
+      "recommendedSolution": "Add stable error ids, aria-invalid and aria-describedby across form inputs.",
+      "verificationSteps": "Accessibility test verifies errored fields announce labels and errors.",
+      "estimatedComplexity": "Small"
+    },
+    {
+      "id": "NX-INFO-001",
+      "severity": "Info",
+      "bucket": "Architecture concerns",
+      "category": "Repository structure",
+      "filePath": "app/(back-office)/dashboard:1",
+      "evidence": "Repository has route groups for app/(front-end), app/(back-office), app/[lang], API routes, lib, actions, redux, workers and Prisma migrations.",
+      "description": "The high-level structure matches a Next.js App Router marketplace, but domain boundaries are split across routes, actions and components.",
+      "businessImpact": "Feature work can become inconsistent unless domain services and auth policies are centralized.",
+      "recommendedSolution": "Document module boundaries and centralize domain services for checkout, catalog, tax, inventory and auth.",
+      "verificationSteps": "New features can be implemented through documented service APIs with tests.",
+      "estimatedComplexity": "Medium"
+    },
+    {
+      "id": "NX-INFO-002",
+      "severity": "Info",
+      "bucket": "Confirmed defects",
+      "category": "AGENTS instructions",
+      "filePath": "AGENTS.md:1",
+      "evidence": "Repository scan found no AGENTS.md outside generated/vendor/cache directories; .agents directory exists but is empty.",
+      "description": "No repository-local agent instructions were available to read.",
+      "businessImpact": "Future automated work lacks project-specific local guidance beyond prompt instructions.",
+      "recommendedSolution": "Add AGENTS.md with audit, test and contribution rules if the team wants persistent local guidance.",
+      "verificationSteps": "Repository root contains AGENTS.md and future audits read it first.",
+      "estimatedComplexity": "Small"
+    }
+  ]
+}

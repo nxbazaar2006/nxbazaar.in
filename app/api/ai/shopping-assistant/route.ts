@@ -1,0 +1,17 @@
+import { auth } from "@/auth";
+import { writeAiAuditLog } from "@/lib/ai/audit-log";
+import { generateAiResponse } from "@/lib/ai/provider";
+import { searchProductsFromDatabase } from "@/lib/ai/product-search";
+import { checkAiRateLimit } from "@/lib/ai/rate-limit";
+import { SHOPPING_ASSISTANT_PROMPT } from "@/lib/ai/prompts";
+import { assertSafeUserPrompt, hashAiInput, redactSensitiveText } from "@/lib/ai/safety";
+import { getRequestClientKey, rateLimited } from "@/lib/security";
+import { NextResponse } from "next/server";
+import { z } from "zod"; const assistantSchema = z.object({
+    message: z.string().trim().min(1).max(1_000), language: z.enum(["en", "hi", "mr"]).optional(),
+}); function fallbackAnswer(productCount: number) {
+    if (productCount === 0) { return "Mujhe Nxbazaar.in database me matching products nahi mile. Budget, category, brand, colour ya size thoda specific karke try karein."; } return "Nxbazaar.in database ke matching products neeche diye hain. Main sirf available product records ke basis par recommendation de raha hoon.";
+}
+export async function POST(request: Request) {
+    const startedAt = Date.now(); const parsed = assistantSchema.safeParse(await request.json().catch(() => null)); if (!parsed.success) { return NextResponse.json({ message: "Invalid assistant request" }, { status: 400 }); } const safety = assertSafeUserPrompt(parsed.data.message); if (!safety.ok) return NextResponse.json({ message: safety.message }, { status: 400 }); const session = await auth(); const key = session?.user?.id ?? getRequestClientKey(request, "ai-shopping-assistant"); const rateLimit = checkAiRateLimit(key, "shopping_assistant"); if (rateLimit.ok === false) return rateLimited(rateLimit.retryAfterMs); const search = await searchProductsFromDatabase(parsed.data.message, 6); const productContext = search.products.map((product) => ({ id: product.id, title: product.title, price: product.salePrice, mrp: product.productPrice, stock: product.stock, category: product.category, subCategory: product.subCategory, brand: product.brand, tags: product.tags, })); let answer = fallbackAnswer(search.products.length); let status: "success" | "disabled" | "error" = "disabled"; try { const ai = await generateAiResponse({ feature: "shopping_assistant", messages: [{ role: "system", content: SHOPPING_ASSISTANT_PROMPT }, { role: "user", content: [`User language: ${parsed.data.language ?? "auto"}`, `User question: ${redactSensitiveText(parsed.data.message)}`, `Trusted product records JSON: ${JSON.stringify(productContext)}`,].join("\n"), },], maxTokens: 500, temperature: 0.2, }); answer = ai.content || answer; status = "success"; await writeAiAuditLog({ feature: "shopping_assistant", status, userId: session?.user?.id, userRole: session?.user?.role, requestHash: hashAiInput(parsed.data.message), promptTokens: ai.usage?.promptTokens, outputTokens: ai.usage?.outputTokens, latencyMs: Date.now() - startedAt, metadata: { resultCount: search.resultCount, provider: ai.provider, model: ai.model }, }); } catch (error) { status = "error"; await writeAiAuditLog({ feature: "shopping_assistant", status, userId: session?.user?.id, userRole: session?.user?.role, requestHash: hashAiInput(parsed.data.message), latencyMs: Date.now() - startedAt, errorMessage: error instanceof Error ? error.message : "AI request failed", metadata: { resultCount: search.resultCount }, }).catch(() => undefined); } return NextResponse.json({ answer, products: search.products, filters: search.filters, aiStatus: status, });
+}

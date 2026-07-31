@@ -1,0 +1,2 @@
+import NewMarketForm from "@/components/backoffice/NewMarketForm"; import { getData } from "@/lib/getData"; import { asArray } from "@/lib/normalizeApiData"; import React from "react";
+export default async function NewMarket() { const categoriesData = await getData("categories"); const categories = asArray(categoriesData).map((category) => { return { id: category.id, title: category.title, }; }); return <NewMarketForm categories={categories} />; } 

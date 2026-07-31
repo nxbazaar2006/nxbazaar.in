@@ -1,0 +1,1 @@
+-- Prisma relation names only. Existing hsnCodeId columns, foreign keys, and indexes are already present.

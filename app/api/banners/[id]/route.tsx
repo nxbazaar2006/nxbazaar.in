@@ -1,0 +1,14 @@
+import { auth } from "@/auth";
+import db from "@/lib/db";
+import { safelyEnqueueTranslationJobs } from "@/lib/queues/safe-translation-enqueue";
+import { createTranslationSourceHash } from "@/lib/translations/source-hash";
+import { generateLocalizedSlug } from "@/lib/utils/generateLocalizedSlug";
+import { NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/security";
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) { const { id } = await context.params; try { const banner = await db.banner.findUnique({ where: { id, }, include: { translations: true }, }); return NextResponse.json(banner); } catch (error) { console.error(error); return NextResponse.json( { message: "Failed to Fetch Banner", error, }, { status: 500 } ); }
+}
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) { const { id } = await context.params; try { const session = await auth(); const denied = assertAdmin(session); if (denied) return denied; const existingBanner = await db.banner.findUnique({ where: { id, }, }); if (!existingBanner) { return NextResponse.json( { data: null, message: "Banner Not Found", }, { status: 404 } ); } const deletedBanner = await db.banner.delete({ where: { id, }, }); return NextResponse.json(deletedBanner); } catch (error) { console.error(error); return NextResponse.json( { message: "Failed to Delete Banner", error, }, { status: 500 } ); }
+}
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) { const { id } = await context.params; try { const session = await auth(); const denied = assertAdmin(session); if (denied) return denied; const { title, link, imageUrl, isActive } = await request.json(); const sourceHash = createTranslationSourceHash({ title, slug: generateLocalizedSlug(title, "en"), description: null, link, }); const existingBanner = await db.banner.findUnique({ where: { id, }, include: { translations: { where: { language: "en" }, take: 1, }, }, }); if (!existingBanner) { return NextResponse.json( { data: null, message: `Not Found`, }, { status: 404 } ); } const updatedBanner = await db.$transaction(async (prisma) => {
+const banner = await prisma.banner.update({ where: { id }, data: { title, link, imageUrl, isActive, }, }); await prisma.bannerTranslation.upsert({ where: { bannerId_language: { bannerId: id, language: "en" } }, update: { title, slug: generateLocalizedSlug(title, "en"), description: null, link, }, create: { bannerId: id, language: "en", title, slug: generateLocalizedSlug(title, "en"), description: null, link, }, }); return banner; }); if (existingBanner.translations[0]?.sourceHash !== sourceHash) { await safelyEnqueueTranslationJobs({ entityType: "BANNER", entityId: id, sourceHash, }); } return NextResponse.json(updatedBanner); } catch (error) { console.error(error); return NextResponse.json( { message: "Failed to Update Banner", error, }, { status: 500 } ); }
+}

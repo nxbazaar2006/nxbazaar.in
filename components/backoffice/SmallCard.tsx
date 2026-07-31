@@ -1,0 +1,2 @@
+import { ShoppingCart } from "lucide-react"; import React from "react";
+export default function SmallCard({ data }) { const { title, number, iconBg, icon: Icon } = data; return ( <div className="liquid-card transition duration-200 hover:-translate-y-1 rounded-3xl p-4 text-white"> <div className="flex space-x-4"> <div className={`w-12 h-12 ${iconBg} rounded-full items-center flex justify-center shadow-lg shadow-[#0b3444]/20`} > <Icon className="text-white" /> </div> <div className=""> <p>{title}</p> <h3 className="text-2xl font-bold">{number}</h3> </div> </div> </div> ); } 

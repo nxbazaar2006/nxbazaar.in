@@ -1,0 +1,144 @@
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'PaymentStatus') THEN
+    CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'AUTHORIZED', 'PAID', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED');
+  END IF;
+END $$;
+
+ALTER TABLE "Product"
+  ADD COLUMN IF NOT EXISTS "approvalNote" TEXT,
+  ADD COLUMN IF NOT EXISTS "approvedAt" TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "approvedById" TEXT,
+  ADD COLUMN IF NOT EXISTS "weight" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "length" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "width" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "height" DOUBLE PRECISION;
+
+ALTER TABLE "Order"
+  ADD COLUMN IF NOT EXISTS "couponId" TEXT,
+  ADD COLUMN IF NOT EXISTS "addressId" TEXT,
+  ADD COLUMN IF NOT EXISTS "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
+  ADD COLUMN IF NOT EXISTS "subtotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "discountTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "taxableTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "cgstTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "sgstTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "igstTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "taxTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "grandTotal" DOUBLE PRECISION NOT NULL DEFAULT 0;
+
+ALTER TABLE "OrderItem"
+  ADD COLUMN IF NOT EXISTS "sellerOrderId" TEXT,
+  ADD COLUMN IF NOT EXISTS "regularPrice" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "salePrice" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "subtotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "taxableValue" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "hsnCode" TEXT,
+  ADD COLUMN IF NOT EXISTS "cgstRate" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "sgstRate" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "igstRate" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "cessRate" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "cgstAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "sgstAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "igstAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "cessAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "taxAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "commissionRate" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "commissionAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "sellerPayable" DOUBLE PRECISION NOT NULL DEFAULT 0;
+
+ALTER TABLE "ProductVariant"
+  ADD COLUMN IF NOT EXISTS "length" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "width" DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS "height" DOUBLE PRECISION;
+
+ALTER TABLE "ProductAttributeValue"
+  ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT true;
+
+ALTER TABLE "CategoryTranslation"
+  ADD COLUMN IF NOT EXISTS "language" TEXT NOT NULL DEFAULT 'en',
+  ADD COLUMN IF NOT EXISTS "metaTitle" TEXT,
+  ADD COLUMN IF NOT EXISTS "metaDescription" TEXT,
+  ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE "CategoryTranslation"
+SET "language" = "locale"::text
+WHERE "language" = 'en' AND "locale" IS NOT NULL;
+
+UPDATE "CategoryTranslation"
+SET "slug" = "id"
+WHERE "slug" IS NULL;
+
+ALTER TABLE "ProductTranslation"
+  ADD COLUMN IF NOT EXISTS "language" TEXT NOT NULL DEFAULT 'en',
+  ADD COLUMN IF NOT EXISTS "shortDescription" TEXT,
+  ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE "ProductTranslation"
+SET "language" = "locale"::text
+WHERE "language" = 'en' AND "locale" IS NOT NULL;
+
+UPDATE "ProductTranslation"
+SET "slug" = "id"
+WHERE "slug" IS NULL;
+
+ALTER TABLE "SubCategoryTranslation"
+  ADD COLUMN IF NOT EXISTS "language" TEXT NOT NULL DEFAULT 'en',
+  ADD COLUMN IF NOT EXISTS "metaTitle" TEXT,
+  ADD COLUMN IF NOT EXISTS "metaDescription" TEXT,
+  ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE "SubCategoryTranslation"
+SET "language" = "locale"::text
+WHERE "language" = 'en' AND "locale" IS NOT NULL;
+
+UPDATE "SubCategoryTranslation"
+SET "slug" = "id"
+WHERE "slug" IS NULL;
+
+CREATE INDEX IF NOT EXISTS "Order_couponId_idx" ON "Order"("couponId");
+CREATE INDEX IF NOT EXISTS "Order_addressId_idx" ON "Order"("addressId");
+CREATE INDEX IF NOT EXISTS "Order_paymentStatus_idx" ON "Order"("paymentStatus");
+CREATE INDEX IF NOT EXISTS "OrderItem_sellerOrderId_idx" ON "OrderItem"("sellerOrderId");
+CREATE INDEX IF NOT EXISTS "CategoryTranslation_language_idx" ON "CategoryTranslation"("language");
+CREATE INDEX IF NOT EXISTS "ProductTranslation_language_idx" ON "ProductTranslation"("language");
+CREATE INDEX IF NOT EXISTS "SubCategoryTranslation_language_idx" ON "SubCategoryTranslation"("language");
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'User')
+     AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Product_approvedById_fkey') THEN
+    ALTER TABLE "Product"
+      ADD CONSTRAINT "Product_approvedById_fkey"
+      FOREIGN KEY ("approvedById") REFERENCES "User"("id")
+      ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'Coupon')
+     AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Order_couponId_fkey') THEN
+    ALTER TABLE "Order"
+      ADD CONSTRAINT "Order_couponId_fkey"
+      FOREIGN KEY ("couponId") REFERENCES "Coupon"("id")
+      ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'Address')
+     AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Order_addressId_fkey') THEN
+    ALTER TABLE "Order"
+      ADD CONSTRAINT "Order_addressId_fkey"
+      FOREIGN KEY ("addressId") REFERENCES "Address"("id")
+      ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'SellerOrder')
+     AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'OrderItem_sellerOrderId_fkey') THEN
+    ALTER TABLE "OrderItem"
+      ADD CONSTRAINT "OrderItem_sellerOrderId_fkey"
+      FOREIGN KEY ("sellerOrderId") REFERENCES "SellerOrder"("id")
+      ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;

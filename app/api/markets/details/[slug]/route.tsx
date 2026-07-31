@@ -1,0 +1,2 @@
+import db from "@/lib/db"; import { NextResponse } from "next/server";
+export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) { const { slug } = await context.params; try { const market = await db.market.findUnique({ where: { slug, }, include: { categories: { include: { products: true, }, }, }, }); return NextResponse.json(market); } catch (error) { console.error(error); return NextResponse.json( { message: "Failed to Fetch Market", error, }, { status: 500 } ); } } 

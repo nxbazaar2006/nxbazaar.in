@@ -1,0 +1,6 @@
+import FormHeader from "@/components/backoffice/FormHeader"; import NewProductForm from "@/components/backoffice/NewProductForm";
+import { getActiveCategoriesForProduct } from "@/lib/actions/products";
+import { getData } from "@/lib/getData";
+import { asArray } from "@/lib/normalizeApiData"; import React from "react";
+export default async function UpdateProduct({ params }) { const { id } = await params; const product = await getData(`products/${id}`); //Categories and Farmers
+const categoriesResult = await getActiveCategoriesForProduct(); const subCategoriesData = (await getData("subcategories")) ?? []; const farmersData = await getData("farmers"); const farmers = asArray(farmersData).map((farmer) => { return { id: farmer.id, title: farmer.name || farmer.email || farmer.id, }; }); const categories = asArray(categoriesResult.data).map((category) => { return { id: category.id, title: category.title, }; }); const subCategories = asArray(subCategoriesData).map((subCategory) => { return { id: subCategory.id, title: subCategory.title, categoryId: subCategory.categoryId, hsnCode: subCategory.hsnCode ?? subCategory.category?.hsnCode ?? null, }; }); return ( <div> <FormHeader title="Update Product" /> <NewProductForm updateData={product} categories={categories} subCategories={subCategories} farmers={farmers} /> </div> ); } 
