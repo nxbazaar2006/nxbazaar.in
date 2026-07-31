@@ -20,8 +20,8 @@ export default function Navbar() {
 
   if (status === "loading") {
     return (
-      <div className="sticky top-0 z-50 w-full px-4 py-3 sm:px-6 md:px-8 backdrop-blur-md">
-        <div className="frontend-glass w-full flex items-center justify-between rounded-[34px] px-6 py-3 text-sm font-medium text-slate-700 shadow-xl">
+      <div className="sticky top-0 z-50 w-full px-2 sm:px-4 md:px-6 lg:px-8 py-2">
+        <div className="frontend-glass w-full flex items-center justify-between rounded-[28px] border border-white/25 bg-white/15 backdrop-blur-2xl px-6 py-3 text-sm font-medium text-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
           {t("common.loading")}
         </div>
       </div>
@@ -29,8 +29,8 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full px-4 py-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 backdrop-blur-xl transition-all duration-300">
-      <div className="frontend-glass w-full flex items-center justify-between rounded-[36px] px-4 py-2.5 sm:px-6 md:px-8 gap-3 sm:gap-6 shadow-2xl border border-white/60">
+    <header className="sticky top-0 z-50 w-full px-2 sm:px-4 md:px-6 lg:px-8 py-2 backdrop-blur-xl transition-all duration-300">
+      <div className="frontend-glass w-full flex items-center justify-between rounded-[28px] border border-white/25 bg-white/15 backdrop-blur-2xl px-4 py-2.5 sm:px-6 md:px-8 gap-3 sm:gap-6 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
         {/* Brand Logo */}
         <Link href="/" className="shrink-0 transition hover:opacity-90">
           <Image src={logo} alt="NXBazaar Logo" className="w-24 sm:w-28 h-auto object-contain" priority />

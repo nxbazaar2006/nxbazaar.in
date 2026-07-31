@@ -23,9 +23,9 @@ export default async function CommunityTrainings({
   const seeAllLink = lang ? `/${lang}/blogs` : "/blogs";
 
   return (
-    <section className="liquid-card frontend-glass rounded-[36px] py-12 shadow-lg sm:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <section className="w-full rounded-[28px] border border-white/25 bg-white/15 backdrop-blur-2xl p-4 sm:p-6 lg:p-8 text-slate-800 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
+      <div className="w-full">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between pb-6 border-b border-white/25">
           <GlassText
             variant="light"
             title={displayTitle}
@@ -37,12 +37,12 @@ export default async function CommunityTrainings({
                 : "Learn from featured community resources and training updates."
             }
             headingAs="h2"
-            headingClassName="text-3xl sm:text-4xl"
-            className="max-w-2xl"
+            headingClassName="text-2xl sm:text-3xl text-slate-900 font-bold"
+            className="w-full"
           />
           <Link
             href={seeAllLink}
-            className="flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-white transition hover:bg-slate-800"
+            className="inline-flex items-center justify-center shrink-0 rounded-full bg-slate-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800"
           >
             {lang === "hi"
               ? "सभी देखें"
@@ -52,7 +52,7 @@ export default async function CommunityTrainings({
             <MoveRight className="ml-2 h-4 w-4 shrink-0" />
           </Link>
         </div>
-        <div className="mx-auto mt-12 grid max-w-md grid-cols-1 gap-y-12 sm:mt-16 md:max-w-none md:grid-cols-3 md:gap-x-8 lg:gap-x-16">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           {trainings.map((training, i) => (
             <BlogCard key={training.id || i} training={training} lang={lang} />
           ))}

@@ -67,23 +67,23 @@ export default function Product({ product }: { product: any }) {
   }
 
   return (
-    <div className="liquid-card frontend-glass group relative flex flex-col justify-between overflow-hidden rounded-[32px] p-3 text-slate-800 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-white/80 border border-white/60">
-      <div className="relative overflow-hidden rounded-[24px]">
-        <Link href={`/products/${product.slug}`} className="block overflow-hidden rounded-[24px]">
+    <div className="liquid-card w-full h-full rounded-[24px] border border-white/25 bg-white/15 backdrop-blur-2xl p-4 sm:p-5 lg:p-6 text-slate-800 shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-all duration-300 hover:-translate-y-[3px] hover:border-white/40 hover:bg-white/20 group relative flex flex-col justify-between overflow-hidden">
+      <div className="relative overflow-hidden rounded-[20px]">
+        <Link href={`/products/${product.slug}`} className="block overflow-hidden rounded-[20px]">
           {imgSrc && !hasError ? (
             <Image
               src={imgSrc}
               alt={product?.title || "Product"}
               width={556}
               height={556}
-              className="h-48 sm:h-52 w-full rounded-[24px] bg-white object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-44 sm:h-48 w-full rounded-[20px] bg-white object-cover transition-transform duration-500 group-hover:scale-105"
               onError={() => {
                 setImgSrc("/vegetables.png");
                 setHasError(true);
               }}
             />
           ) : (
-            <div className="flex h-48 sm:h-52 w-full items-center justify-center rounded-[24px] bg-white/60 text-slate-400 font-semibold">
+            <div className="flex h-44 sm:h-48 w-full items-center justify-center rounded-[20px] bg-white/60 text-slate-400 font-semibold">
               No Image
             </div>
           )}
@@ -104,9 +104,9 @@ export default function Product({ product }: { product: any }) {
         </div>
       </div>
 
-      <div className="flex flex-col flex-grow justify-between px-2 pt-3">
+      <div className="flex flex-col flex-grow justify-between pt-3">
         <Link href={`/products/${product.slug}`}>
-          <h2 className="my-2 text-center font-bold text-slate-900 line-clamp-2 text-sm sm:text-base group-hover:text-emerald-700 transition-colors">
+          <h2 className="my-2 text-center font-bold text-slate-900 line-clamp-2 text-sm sm:text-base leading-relaxed group-hover:text-emerald-700 transition-colors">
             {product.title}
           </h2>
         </Link>
