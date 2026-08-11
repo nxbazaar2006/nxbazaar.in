@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Barcode,
   BookOpenText,
   Boxes,
   Building2,
@@ -75,7 +76,7 @@ export default function Sidebar({
 
   let catalogueLinks = [
     { title: "Products", icon: Boxes, href: "/dashboard/products" },
-    { title: "Scanner", icon: ScanSearch, href: "/dashboard/products/scanner" },
+    { title: "Barcodes", icon: Barcode, href: "/dashboard/barcodes" },
     { title: "Categories", icon: LayoutList, href: "/dashboard/categories" },
     { title: "Subcategories", icon: Layers, href: "/dashboard/subcategories" },
     { title: "HSN Code", icon: ReceiptText, href: "/dashboard/hsn-codes" },
@@ -97,7 +98,7 @@ export default function Sidebar({
     ];
     catalogueLinks = [
       { title: "Products", icon: Boxes, href: "/dashboard/products" },
-      { title: "Scanner", icon: ScanSearch, href: "/dashboard/products/scanner" },
+      { title: "Barcodes", icon: Barcode, href: "/dashboard/barcodes" },
       { title: "Coupons", icon: ScanSearch, href: "/dashboard/coupons" },
     ];
   }

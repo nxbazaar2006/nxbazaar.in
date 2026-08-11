@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { assertAuthenticated } from "@/lib/security";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -18,9 +19,12 @@ export async function POST(request: Request) {
   };
   const result = await db.product.deleteMany({ where });
   const skipped = uniqueIds.length - result.count;
+
+  revalidatePath("/dashboard/products");
+
   return NextResponse.json({
     success: true,
-    message: `${result.count} products deleted. ${skipped} skipped.`,
+    message: `${result.count} product(s) deleted successfully. ${skipped ? `${skipped} skipped.` : ""}`,
     data: { deleted: result.count, skipped },
   });
 }

@@ -143,14 +143,19 @@ export function buildEnglishTranslationPayload(
   },
   options: { includeShortDescription?: boolean } = {}
 ): NormalizedTranslation {
+  const cleanDescription = (fallback.description || "").replace(/<[^>]*>?/gm, "").trim();
+  const autoMetaTitle = emptyToNull(fallback.metaTitle) || fallback.title.trim();
+  const autoMetaDescription =
+    emptyToNull(fallback.metaDescription) || cleanDescription.slice(0, 160) || fallback.title.trim();
+
   return {
     language: defaultLanguage,
     title: fallback.title.trim(),
     slug: cleanSlug(fallback.slug || generateLocalizedSlug(fallback.title, defaultLanguage)),
     shortDescription: options.includeShortDescription ? emptyToNull(fallback.shortDescription) : undefined,
     description: emptyToNull(fallback.description),
-    metaTitle: emptyToNull(fallback.metaTitle),
-    metaDescription: emptyToNull(fallback.metaDescription),
+    metaTitle: autoMetaTitle,
+    metaDescription: autoMetaDescription,
   };
 }
 

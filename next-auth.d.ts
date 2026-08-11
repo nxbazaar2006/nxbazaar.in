@@ -6,6 +6,7 @@ declare module "next-auth" {
     user: {
       id?: string;
       role?: UserRole;
+      /** DB: boolean; session exposes as Date | null for NextAuth compatibility */
       status?: boolean;
       emailVerified?: Date | null;
     } & DefaultSession["user"];
@@ -14,8 +15,14 @@ declare module "next-auth" {
   interface User {
     id: string;
     role?: UserRole;
+    /** DB field: boolean (true = active) */
     status?: boolean;
-    emailVerified?: Date | null;
+    /**
+     * DB field: boolean.
+     * authorize() returns the raw boolean; jwt() converts to boolean;
+     * session() exposes as Date | null for NextAuth/PrismaAdapter compatibility.
+     */
+    emailVerified?: boolean | Date | null;
   }
 }
 
@@ -24,6 +31,18 @@ declare module "next-auth/jwt" {
     id?: string;
     role?: UserRole;
     status?: boolean;
+    /** Stored as boolean in JWT to avoid serialization issues */
     emailVerified?: boolean;
   }
 }
+
+declare module "@auth/core/jwt" {
+  interface JWT {
+    id?: string;
+    role?: UserRole;
+    status?: boolean;
+    /** Stored as boolean in JWT to avoid serialization issues */
+    emailVerified?: boolean;
+  }
+}
+

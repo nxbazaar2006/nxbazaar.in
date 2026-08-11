@@ -233,7 +233,7 @@ export async function syncProductAttributesAndVariants({
   });
   const existingVariantById: Map<string, (typeof existingVariants)[number]> = new Map(existingVariants.map((variant) => [variant.id, variant]));
 
-  if (productType !== "VARIABLE") {
+  if (productType !== "VARIABLE" && (!variants || variants.length === 0)) {
     for (const existingVariant of existingVariants.filter((variant) => variant.isActive)) {
       await prisma.productVariant.update({ where: { id: existingVariant.id }, data: { isActive: false } });
       await createProductHistory(prisma, { ...baseHistory, variantId: existingVariant.id, sku: existingVariant.sku, barcode: existingVariant.barcode, action: ProductHistoryAction.VARIANT_UPDATED, field: "isActive", oldValue: true, newValue: false, note: "Variant deactivated because product type is not VARIABLE." });

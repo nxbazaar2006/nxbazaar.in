@@ -40,8 +40,10 @@ export default async function page() {
   const brands = brandsData.map((b) => ({ id: b.id, title: b.title }));
   const farmers = farmersData.map((f) => ({ id: f.id, title: f.name || f.email || f.id }));
 
+  const statusFilter = { status: { not: "ARCHIVED" as const } };
+
   const products = await db.product.findMany({
-    where: canViewAllProducts ? undefined : { userId: id },
+    where: canViewAllProducts ? statusFilter : { userId: id, ...statusFilter },
     include: {
       category: { include: { hsnCode: true } },
       subCategory: { include: { hsnCode: true } },

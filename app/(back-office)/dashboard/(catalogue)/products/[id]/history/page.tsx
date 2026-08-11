@@ -55,9 +55,6 @@ export default async function ProductHistoryPage({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/products/scan" className="rounded-md border px-3 py-2 text-sm">
-            Scan another barcode
-          </Link>
           {selectedVariant ? (
             <Link href={`/dashboard/products/${product.id}/history`} className="rounded-md border px-3 py-2 text-sm">
               Clear variant filter

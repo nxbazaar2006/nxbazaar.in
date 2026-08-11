@@ -141,7 +141,7 @@ export default function DataTable<TData, TValue>({
         />
       )}
 
-      <div className="liquid-card liquid-glass data-table-panel overflow-hidden rounded-[28px]">
+      <div className="liquid-card liquid-glass data-table-panel overflow-hidden rounded-[28px] rounded-bl-[20px] rounded-br-[20px] md:rounded-bl-[28px] md:rounded-br-[28px] xl:rounded-bl-[32px] xl:rounded-br-[32px]">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur-xl">
             {table.getHeaderGroups().map((headerGroup) => (

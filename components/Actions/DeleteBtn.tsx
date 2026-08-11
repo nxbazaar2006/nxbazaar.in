@@ -24,7 +24,8 @@ export default function DeleteBtn({ endpoint, title }) {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const res = await fetch(`${baseUrl}/api/${endpoint}`, { method: "DELETE" });
+        const apiUrl = endpoint.startsWith("/") ? endpoint : `/api/${endpoint}`;
+        const res = await fetch(apiUrl, { method: "DELETE" });
         const data = await res.json().catch(() => null);
         if (res.ok) {
           router.refresh();

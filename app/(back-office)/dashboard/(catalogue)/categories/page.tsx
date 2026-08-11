@@ -29,7 +29,7 @@ export default async function page() {
   );
 
   return (
-    <div>
+    <div className="overflow-hidden rounded-bl-[20px] rounded-br-[20px] md:rounded-bl-[28px] md:rounded-br-[28px] xl:rounded-bl-[32px] xl:rounded-br-[32px]">
       {/* Header */}
       <PageHeader
         heading="Categories"

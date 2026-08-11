@@ -717,7 +717,7 @@ export default function NewProductForm({
     data.taxMappingStatus = selectedHsn ? "MAPPED" : "PENDING_REVIEW";
     if (!selectedHsn) data.isActive = false;
     data.attributes = productType === "VARIABLE" ? attributes : [];
-    data.variants = productType === "VARIABLE" ? variants.map(({ sku, productCode, barcode, ...variant }) => variant) : [];
+    data.variants = productType === "VARIABLE" ? variants : [];
     data.productType = productType;
     if (id) {
       data.id = id;
@@ -913,6 +913,25 @@ export default function NewProductForm({
 
             <div className="sm:col-span-2">
               <ProductDescriptionEditor
+                initialTranslations={
+                  updateData?.translations && Array.isArray(updateData.translations) && updateData.translations.length > 0
+                    ? updateData.translations.reduce((acc: any, t: any) => {
+                        acc[t.language] = {
+                          title: t.title,
+                          shortDescription: t.shortDescription,
+                          descriptionHtml: t.description || t.descriptionHtml || "",
+                          descriptionJson: t.descriptionJson,
+                          metaTitle: t.metaTitle,
+                          metaDescription: t.metaDescription,
+                        };
+                        return acc;
+                      }, {})
+                    : {
+                        en: {
+                          descriptionHtml: updateData?.description || "",
+                        },
+                      }
+                }
                 productContext={{
                   title: watch("title"),
                   category: categories.find((c) => c.id === selectedCategoryId)?.title,
@@ -1104,10 +1123,6 @@ export default function NewProductForm({
       {/* 6. SEO Section */}
       {activeTab === "SEO" && (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            <TextInput label="Meta Title (SEO)" name="seoTitle" register={register} errors={errors} className="w-full" />
-            <TextareaInput label="Meta Description (SEO)" name="metaDescription" register={register} errors={errors} className="w-full" placeholder="e.g. Shop fresh, organic apples directly from farmers on Nxbazaar.in with fast delivery." />
-          </div>
           <ArrayItemsInput setItems={setTags} items={tags} itemTitle="Search Tag / Keyword" />
         </div>
       )}

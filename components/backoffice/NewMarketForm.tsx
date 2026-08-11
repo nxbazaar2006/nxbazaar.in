@@ -87,7 +87,7 @@ export default function NewMarketForm({ categories }: { categories: any[] }) {
             <TipTapAIEditor
               value={description}
               onChange={setDescription}
-              productTitle={watch("title")}
+              productTitle={(watch as any)("title")}
             />
           </div>
 

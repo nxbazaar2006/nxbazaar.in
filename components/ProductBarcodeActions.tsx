@@ -33,7 +33,7 @@ export default function ProductBarcodeActions({
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   if (!currentBarcode) {
-    return <span className="text-xs text-slate-500 italic">No barcode assigned</span>;
+    return <span className="text-xs text-slate-500 italic">No Barcode assigned</span>;
   }
 
   const svgString = generateCode128Svg({
@@ -83,7 +83,7 @@ export default function ProductBarcodeActions({
     const img = new Image();
 
     const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(svgBlob);
+    const url = typeof window !== "undefined" ? URL.createObjectURL(svgBlob) : "";
 
     img.onload = () => {
       canvas.width = img.width * 2;
@@ -101,7 +101,7 @@ export default function ProductBarcodeActions({
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (url) URL.revokeObjectURL(url);
     };
     img.src = url;
   }

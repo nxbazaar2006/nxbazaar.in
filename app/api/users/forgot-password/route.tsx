@@ -68,7 +68,7 @@ export async function PUT(request: Request) {
 
     const { error: sendError } = await resend.emails.send({
       from:
-        process.env.RESEND_FROM_EMAIL ?? "Nxbazaar.in <noreply@nxbazaar.in.in>",
+        process.env.RESEND_FROM_EMAIL ?? "Nxbazaar.in <noreply@nxbazaar.in>",
       to: email,
       subject,
       react: EmailTemplate({

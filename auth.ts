@@ -49,6 +49,7 @@ export const authConfig = {
     Credentials({
       name: "Credentials",
       credentials: {
+        // Field names must exactly match what the login form sends
         email: { label: "Email", type: "email", placeholder: "jb@gmail.com" },
         password: { label: "Password", type: "password" },
       },
@@ -57,16 +58,25 @@ export const authConfig = {
           db.user.findFirst({
             where: {
               email: {
+                // Case-insensitive Prisma lookup
                 equals: email,
                 mode: "insensitive",
               },
             },
           })
         );
+
         if (!user) return null;
+
+        // Return original DB values — do NOT convert emailVerified to Date here
         return {
-          ...user,
-          emailVerified: user.emailVerified ? new Date() : null,
+          id: user.id,
+          name: user.name ?? null,
+          email: user.email ?? null,
+          image: user.image ?? null,
+          role: user.role,
+          status: user.status,
+          emailVerified: user.emailVerified,
         };
       },
     }),
@@ -82,10 +92,23 @@ export const authConfig = {
       if (!auth?.user?.id) return false;
       return canAccessPath(auth.user.role, pathname);
     },
-    async signIn({ user }) {
+
+    /**
+     * Provider-aware signIn callback.
+     * - Google: allow sign-in (the adapter handles account linking).
+     * - Credentials: validate that the account is active/verified.
+     */
+    async signIn({ user, account }) {
+      // Google OAuth — let Auth.js adapter handle it
+      if (account?.provider === "google") {
+        return true;
+      }
+
+      // Credentials — enforce account policy
       if (!user.email) return false;
       const normalizedEmail = normalizeCredentialEmail(user.email);
       if (!normalizedEmail) return false;
+
       const existingUser = await db.user.findFirst({
         where: {
           email: {
@@ -94,21 +117,27 @@ export const authConfig = {
           },
         },
       });
+
+      // If the user was not found (shouldn't happen after authorize), allow through
       if (!existingUser) return true;
+
       return canCredentialsUserSignIn(existingUser);
     },
+
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.role = token.role;
-        session.user.status = token.status;
-        session.user.image = token.picture;
+        if (token.id) session.user.id = String(token.id);
+        if (token.name) session.user.name = token.name;
+        if (token.email) session.user.email = token.email;
+        if (token.role) session.user.role = token.role as import("@prisma/client").UserRole;
+        if (token.status !== undefined) session.user.status = Boolean(token.status);
+        if (token.picture) session.user.image = token.picture;
+        // Reconstruct Date from the boolean stored in JWT, or null
         session.user.emailVerified = token.emailVerified ? new Date(0) : null;
       }
       return session;
     },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -117,6 +146,7 @@ export const authConfig = {
         token.role = user.role;
         token.status = user.status;
         token.picture = user.image;
+        // Store as boolean in JWT; the original DB value is already boolean
         token.emailVerified = Boolean(user.emailVerified);
       }
       return token;

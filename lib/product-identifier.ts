@@ -15,7 +15,7 @@ type ProductIdentifierClient = {
   productVariant: {
     findFirst(args: {
       where: {
-        OR: Array<{ sku: string } | { barcode: string }>;
+        OR: Array<{ sku?: string } | { barcode?: string }>;
       };
       select: {
         id: true;
@@ -135,7 +135,10 @@ export async function findProductByIdentifier(
 
   const variant = await tx.productVariant.findFirst({
     where: {
-      OR: [{ sku: normalizedIdentifier }, { barcode: normalizedIdentifier }],
+      OR: [
+        { sku: normalizedIdentifier },
+        { barcode: normalizedIdentifier },
+      ],
     },
     select: {
       id: true,

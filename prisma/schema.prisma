@@ -1822,3 +1822,21 @@ model ProductQrScan {
   @@index([scannedAt])
 }
 
+model ProductSequence {
+  prefix       String   @id
+  lastSequence Int      @default(0)
+  updatedAt    DateTime @updatedAt
+
+  @@map("product_sequences")
+}
+
+model BarcodeSequence {
+  id           String   @id @default("barcode")
+  lastSequence BigInt   @default(100000000000)
+  updatedAt    DateTime @updatedAt
+
+  @@map("barcode_sequences")
+}
+
+
+

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Loader2, Sparkles, AlertCircle } from "lucide-react";
 import { SearchableMultiSelect } from "./searchable-multi-select";
 import { generateSlug } from "@/lib/generateSlug";
-import { generateSku } from "@/lib/sku-generator";
+import { generateSku, generateInternalBarcode } from "@/lib/sku-generator";
 
 export type AttributeValueMaster = {
   id: string;
@@ -21,6 +21,7 @@ export type AttributeMaster = {
   inputType: "SELECT" | "MULTI_SELECT" | "TEXT" | "NUMBER" | "BOOLEAN";
   isVariant: boolean;
   isRequired: boolean;
+  position?: number;
   values: AttributeValueMaster[];
 };
 
@@ -100,10 +101,57 @@ export function CategoryAttributeSelector({
 
         if (isMounted) {
           if (json.success && Array.isArray(json.data)) {
-            setAttributesMaster(json.data);
+            const fetchedMaster: AttributeMaster[] = json.data;
+            const masterSlugs = new Set(fetchedMaster.map((a) => a.slug));
+            const mergedMaster: AttributeMaster[] = [...fetchedMaster];
+
+            if (initialAttributes && initialAttributes.length > 0) {
+              initialAttributes.forEach((initAttr) => {
+                const slug = generateSlug(initAttr.name);
+                if (!masterSlugs.has(slug)) {
+                  mergedMaster.push({
+                    id: slug,
+                    name: initAttr.name,
+                    slug,
+                    inputType: "MULTI_SELECT",
+                    isVariant: initAttr.isVariant !== false,
+                    isRequired: false,
+                    position: mergedMaster.length,
+                    values: initAttr.values.map((v, i) => ({
+                      id: `${slug}-${i}`,
+                      value: v.value,
+                      slug: generateSlug(v.value),
+                      colorCode: v.colorCode || null,
+                      position: i,
+                    })),
+                  });
+                  masterSlugs.add(slug);
+                } else {
+                  const existingAttr = mergedMaster.find((a) => a.slug === slug);
+                  if (existingAttr) {
+                    const valSlugs = new Set(existingAttr.values.map((v) => v.slug));
+                    initAttr.values.forEach((v, i) => {
+                      const vSlug = generateSlug(v.value);
+                      if (!valSlugs.has(vSlug)) {
+                        existingAttr.values.push({
+                          id: `${slug}-${vSlug}`,
+                          value: v.value,
+                          slug: vSlug,
+                          colorCode: v.colorCode || null,
+                          position: existingAttr.values.length,
+                        });
+                        valSlugs.add(vSlug);
+                      }
+                    });
+                  }
+                }
+              });
+            }
+
+            setAttributesMaster(mergedMaster);
 
             // Populate initial map if initialAttributes exist
-            if (initialAttributes.length > 0) {
+            if (initialAttributes && initialAttributes.length > 0) {
               const initialMap: Record<string, string[]> = {};
               initialAttributes.forEach((attr) => {
                 const slug = generateSlug(attr.name);
@@ -237,7 +285,7 @@ export function CategoryAttributeSelector({
           id: existing?.id,
           title: comboTitle,
           sku: existing?.sku || generatedSku,
-          barcode: existing?.barcode || generatedSku,
+          barcode: existing?.barcode || generateInternalBarcode(generatedSku),
           productCode: existing?.productCode || "",
           price: existing?.price ?? 0,
           salePrice: existing?.salePrice ?? 0,

@@ -184,7 +184,7 @@ export function ProductDescriptionEditor({
     },
   });
 
-  // Sync TipTap content when switching language tabs
+  // Sync TipTap content when switching language tabs or when descriptionHtml changes
   useEffect(() => {
     if (!editor) return;
 
@@ -193,7 +193,7 @@ export function ProductDescriptionEditor({
     if (editor.getHTML() !== currentHtml) {
       editor.commands.setContent(currentHtml, { emitUpdate: false });
     }
-  }, [activeLanguage, editor]);
+  }, [activeLanguage, activeData.descriptionHtml, editor]);
 
   // Selected text extraction helper
   const getSelectedHtml = useCallback(() => {

@@ -1,13 +1,164 @@
 "use client";
 import { LiquidGlassButton } from "@/components/ui/liquid-glass-button";
-import { LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import Link from "next/link"; type CredentialsSignInResult = { error?: string | null; ok?: boolean; status?: number; url?: string | null;
-}; type LoginFormValues = { email: string; password: string;
-}; function hasCredentialsSignInError(result: unknown) { if (!result || typeof result === "string") return false; if (typeof result !== "object") return true; const signInResult = result as CredentialsSignInResult; return Boolean(signInResult.error) || signInResult.ok === false;
+import Link from "next/link";
+
+type CredentialsSignInResult = {
+  error?: string | null;
+  ok?: boolean;
+  status?: number;
+  url?: string | null;
+};
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
+
+function hasCredentialsSignInError(result: unknown) {
+  if (!result || typeof result === "string") return false;
+  if (typeof result !== "object") return true;
+  const signInResult = result as CredentialsSignInResult;
+  return Boolean(signInResult.error) || signInResult.ok === false;
 }
-export default function LoginForm() { const router = useRouter(); const { register, handleSubmit, reset, formState: { errors }, } = useForm<LoginFormValues>(); const [loading, setLoading] = useState(false); async function onSubmit(data: LoginFormValues) { try { setLoading(true); const result = await signIn("credentials", { email: data.email.trim().toLowerCase(), password: data.password, redirect: false, }); if (hasCredentialsSignInError(result)) { setLoading(false); toast.error("Invalid email or password."); } else { toast.success("Login Successful"); reset(); router.push("/"); router.refresh(); } } catch (error) { setLoading(false); toast.error(error instanceof Error ? error.message : "Invalid email or password."); } } return ( <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 "> <div> <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900" > Your email </label> <input {...register("email", { required: true })} type="email" name="email" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required /> {errors.email && ( <small className="text-red-600 text-sm "> This field is required </small> )} </div> <div> <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900" > Password </label> <input {...register("password", { required: true })} type="password" name="password" id="password" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required /> {errors.password && ( <small className="text-red-600 text-sm "> This field is required </small> )} </div> <div className="flex gap-4 items-center"> <Link href="/forgot-password" className="shrink-0 font-medium text-blue-600 hover:underline" > Forgot Password </Link> {loading ? ( <LiquidGlassButton disabled loading type="button" variant="primary" fullWidth > Signing you in please wait... </LiquidGlassButton> ) : ( <LiquidGlassButton type="submit" variant="primary" leftIcon={<LogIn />} fullWidth > Login </LiquidGlassButton> )} </div> <p className="text-sm font-light text-gray-500"> Already have an account?{" "} <Link href="/register" className="font-medium text-blue-600 hover:underline" > Sign Up </Link> </p> </form> ); } 
+
+export default function LoginForm() {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<LoginFormValues>();
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  async function onSubmit(data: LoginFormValues) {
+    try {
+      setLoading(true);
+      const result = await signIn("credentials", {
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        redirect: false,
+      });
+      if (hasCredentialsSignInError(result)) {
+        setLoading(false);
+        toast.error("Invalid email or password.");
+      } else {
+        toast.success("Login Successful");
+        reset();
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error(
+        error instanceof Error ? error.message : "Invalid email or password."
+      );
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* Email */}
+      <div>
+        <label
+          htmlFor="email"
+          className="block mb-2 text-sm font-medium text-gray-900"
+        >
+          Your email
+        </label>
+        <input
+          {...register("email", { required: true })}
+          type="email"
+          name="email"
+          id="email"
+          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+          placeholder="name@company.com"
+          required
+        />
+        {errors.email && (
+          <small className="text-red-600 text-sm">This field is required</small>
+        )}
+      </div>
+
+      {/* Password with show/hide toggle */}
+      <div>
+        <label
+          htmlFor="password"
+          className="block mb-2 text-sm font-medium text-gray-900"
+        >
+          Password
+        </label>
+        <div className="relative">
+          <input
+            {...register("password", { required: true })}
+            type={showPassword ? "text" : "password"}
+            name="password"
+            id="password"
+            placeholder="••••••••"
+            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 pr-10"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+        {errors.password && (
+          <small className="text-red-600 text-sm">This field is required</small>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-4 items-center">
+        <Link
+          href="/forgot-password"
+          className="shrink-0 font-medium text-blue-600 hover:underline"
+        >
+          Forgot Password
+        </Link>
+        {loading ? (
+          <LiquidGlassButton
+            disabled
+            loading
+            type="button"
+            variant="primary"
+            fullWidth
+          >
+            Signing you in please wait...
+          </LiquidGlassButton>
+        ) : (
+          <LiquidGlassButton
+            type="submit"
+            variant="primary"
+            leftIcon={<LogIn />}
+            fullWidth
+          >
+            Login
+          </LiquidGlassButton>
+        )}
+      </div>
+
+      <p className="text-sm font-light text-gray-500">
+        Already have an account?{" "}
+        <Link href="/register" className="font-medium text-blue-600 hover:underline">
+          Sign Up
+        </Link>
+      </p>
+    </form>
+  );
+}

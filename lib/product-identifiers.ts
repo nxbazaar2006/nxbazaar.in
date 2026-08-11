@@ -1,64 +1,68 @@
-import { generateVariantSku } from "@/lib/sku-generator";
+import {
+  generateVariantSku,
+  createSkuCode,
+  extractProduct3,
+  createVariantSequence3,
+  type SkuParts,
+} from "@/lib/sku-generator";
 
 const PRODUCT_NUMBER_WIDTH = 6;
 
-const cleanIdentifier = (value: unknown) =>
-  String(value || "")
+export function normalizeCode(value: unknown, length = 3, fallback = "DEF"): string {
+  const cleaned = String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9]/g, "")
+    .toUpperCase();
+
+  if (!cleaned) return fallback.slice(0, length).toUpperCase();
+  if (cleaned.length <= length) return cleaned.padEnd(length, "X");
+  return cleaned.slice(0, length);
+}
+
+export function cleanIdentifier(value: unknown): string {
+  return String(value || "")
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^A-Za-z0-9-]/g, "")
     .toUpperCase();
-
-function variantValues(variant) {
-  return (variant?.values || []).map((value) => value?.value || value?.valueSlug || value?.attributeValueSlug || "VAR");
 }
 
-function variantOption(variant, names: string[]) {
-  const matched = (variant?.values || []).find((value) => {
-    const attribute = String(value?.attribute || value?.attributeSlug || "").toLowerCase();
+type VariantValueItem = {
+  attribute?: string;
+  attributeSlug?: string;
+  value?: string;
+  valueSlug?: string;
+  attributeValueSlug?: string;
+};
+
+type VariantInputItem = {
+  id?: string;
+  color?: string;
+  size?: string;
+  sku?: string;
+  productCode?: string;
+  barcode?: string;
+  manufacturerBarcode?: string;
+  values?: VariantValueItem[];
+  [key: string]: unknown;
+};
+
+function extractVariantOption(variant: VariantInputItem, names: string[]): string {
+  if (names.includes("color") && variant.color) return variant.color;
+  if (names.includes("size") && variant.size) return variant.size;
+
+  const matched = (variant?.values || []).find((val) => {
+    const attribute = String(val?.attribute || val?.attributeSlug || "").toLowerCase();
     return names.some((name) => attribute.includes(name));
   });
+
   return matched?.value || matched?.valueSlug || matched?.attributeValueSlug || "";
 }
 
-function normalizeVendorCode(value: unknown) {
-  return createIdentifierCode(value, "VND");
-}
+export async function resolveVendorCode(prisma: any, userId: string): Promise<string> {
+  if (!userId) return "V01";
 
-function createIdentifierCode(value: unknown, fallback: string) {
-  const cleaned = String(value || "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/[^A-Za-z0-9-]/g, "")
-    .replace(/-/g, "")
-    .toUpperCase();
-  return (cleaned || fallback).slice(0, 3);
-}
-
-function buildVendorCode(sequence: number) {
-  return `V${String(Math.max(1, sequence)).padStart(3, "0")}`;
-}
-
-function productCodePrefix(vendorCode: string, categoryCode: string, subCategoryCode: string) {
-  return `${vendorCode}-${categoryCode}-${subCategoryCode}-`;
-}
-
-function parseProductNumber(productCode: string, prefix: string) {
-  const match = productCode.match(new RegExp(`^${prefix}(\\d{${PRODUCT_NUMBER_WIDTH}})$`));
-  return match ? Number(match[1]) : 0;
-}
-
-async function generateUniqueSellerCode(prisma) {
-  for (let sequence = 1; sequence <= 999; sequence += 1) {
-    const code = buildVendorCode(sequence);
-    const existing = await prisma.sellerProfile.findUnique({ where: { code }, select: { id: true } });
-    if (!existing) return code;
-  }
-  throw new Error("Unable to generate a unique seller code.");
-}
-
-export async function resolveVendorCode(prisma, userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -70,79 +74,201 @@ export async function resolveVendorCode(prisma, userId: string) {
     },
   });
 
-  if (!user) return normalizeVendorCode(userId);
+  if (!user) return normalizeCode(userId, 3, "V01");
 
-  const sellerCode = normalizeVendorCode(user.sellerProfile?.code);
-  if (sellerCode) return sellerCode;
+  if (user.sellerProfile?.code) {
+    return normalizeCode(user.sellerProfile.code, 3, "V01");
+  }
 
   if (user.sellerProfile?.id) {
-    const code = await generateUniqueSellerCode(prisma);
-    await prisma.sellerProfile.update({
-      where: { id: user.sellerProfile.id },
-      data: { code },
+    for (let sequence = 1; sequence <= 999; sequence += 1) {
+      const code = `V${String(sequence).padStart(2, "0")}`;
+      const existing = await prisma.sellerProfile.findUnique({
+        where: { code },
+        select: { id: true },
+      });
+      if (!existing) {
+        await prisma.sellerProfile.update({
+          where: { id: user.sellerProfile.id },
+          data: { code },
+        });
+        return code;
+      }
+    }
+  }
+
+  if (user.farmerProfile?.code) {
+    return normalizeCode(user.farmerProfile.code, 3, "V01");
+  }
+
+  return normalizeCode(user.name || user.email || user.id, 3, "V01");
+}
+
+export async function getNextProductSequence(prisma: any, prefix: string): Promise<number> {
+  try {
+    const record = await prisma.productSequence.upsert({
+      where: { prefix },
+      create: { prefix, lastSequence: 1 },
+      update: { lastSequence: { increment: 1 } },
+      select: { lastSequence: true },
     });
-    return code;
+    return record.lastSequence;
+  } catch {
+    const existing = await prisma.product.findMany({
+      where: { productCode: { startsWith: prefix } },
+      select: { productCode: true },
+      orderBy: { productCode: "desc" },
+      take: 20,
+    });
+    let max = 0;
+    for (const p of existing) {
+      const match = (p.productCode || "").match(/(\d{6})$/);
+      if (match) {
+        max = Math.max(max, parseInt(match[1], 10));
+      }
+    }
+    return max + 1;
   }
-
-  const farmerCode = normalizeVendorCode(user.farmerProfile?.code);
-  if (farmerCode) return farmerCode;
-
-  return normalizeVendorCode(user.name || user.email || user.id);
 }
 
-async function nextProductNumber(prisma, prefix: string) {
-  const products = await prisma.product.findMany({
-    where: { productCode: { startsWith: prefix } },
-    select: { productCode: true },
-    orderBy: { productCode: "desc" },
-    take: 25,
+export async function getNextBarcodeSequence(prisma: any): Promise<string> {
+  try {
+    const record = await prisma.barcodeSequence.upsert({
+      where: { id: "barcode" },
+      create: { id: "barcode", lastSequence: 100000000001n },
+      update: { lastSequence: { increment: 1n } },
+      select: { lastSequence: true },
+    });
+    return String(record.lastSequence).padStart(12, "0");
+  } catch (error) {
+    try {
+      const highestVariant = await prisma.productVariant.findFirst({
+        where: { barcode: { not: "" } },
+        select: { barcode: true },
+        orderBy: { barcode: "desc" },
+      });
+      let next = 100000000001n;
+      if (highestVariant?.barcode && /^\d{12}$/.test(highestVariant.barcode)) {
+        next = BigInt(highestVariant.barcode) + 1n;
+      }
+      return String(next).padStart(12, "0");
+    } catch {
+      const timestampSeq = BigInt(Date.now()) * 100n + BigInt(Math.floor(Math.random() * 90) + 10);
+      return String(timestampSeq).slice(-12).padStart(12, "1");
+    }
+  }
+}
+
+export async function generateProductCode(
+  prisma: any,
+  vendorCode: string,
+  categoryTitle: string,
+  subCategoryTitle: string
+): Promise<string> {
+  const categoryCode = normalizeCode(categoryTitle, 3, "CAT");
+  const subCategoryCode = normalizeCode(subCategoryTitle, 3, "SUB");
+  const prefix = `${vendorCode}-${categoryCode}-${subCategoryCode}`;
+
+  const seq = await getNextProductSequence(prisma, prefix);
+  const formattedSeq = String(seq).padStart(PRODUCT_NUMBER_WIDTH, "0");
+  const candidate = `${prefix}-${formattedSeq}`;
+
+  const existing = await prisma.product.findUnique({
+    where: { productCode: candidate },
+    select: { id: true },
   });
-  const maxNumber = products.reduce((max, product) => {
-    return Math.max(max, parseProductNumber(product.productCode || "", prefix));
-  }, 0);
-  return maxNumber + 1;
-}
 
-async function generateUniqueProductCode(prisma, vendorCode: string, categoryTitle: string, subCategoryTitle: string) {
-  const categoryCode = createIdentifierCode(categoryTitle, "CAT");
-  const subCategoryCode = createIdentifierCode(subCategoryTitle, "SUB");
-  const prefix = productCodePrefix(vendorCode, categoryCode, subCategoryCode);
-  let productNumber = await nextProductNumber(prisma, prefix);
-  for (let attempt = 0; attempt < 25; attempt += 1) {
-    const value = `${prefix}${String(productNumber).padStart(PRODUCT_NUMBER_WIDTH, "0")}`;
-    const existing = await prisma.product.findUnique({ where: { productCode: value }, select: { id: true } });
-    if (!existing) return value;
-    productNumber += 1;
+  if (!existing) {
+    return candidate;
   }
-  throw new Error("Unable to generate a unique product code.");
+
+  for (let offset = 1; offset <= 50; offset += 1) {
+    const retrySeq = String(seq + offset).padStart(PRODUCT_NUMBER_WIDTH, "0");
+    const retryCandidate = `${prefix}-${retrySeq}`;
+    const collision = await prisma.product.findUnique({
+      where: { productCode: retryCandidate },
+      select: { id: true },
+    });
+    if (!collision) {
+      return retryCandidate;
+    }
+  }
+
+  throw new Error(`Failed to generate a unique ProductCode for prefix ${prefix}`);
 }
 
-function buildServerVariantSku({ vendorCode, productTitle, categoryTitle, subCategoryTitle, variant, sequence }) {
-  const color = variantOption(variant, ["color", "colour"]) || variantValues(variant)[0] || "CLR";
-  const size = variantOption(variant, ["size"]) || variantValues(variant)[1] || "SIZE";
+type BuildSkuOptions = {
+  vendorCode: string;
+  categoryTitle: string;
+  subCategoryTitle: string;
+  productCode: string;
+  variant: VariantInputItem;
+  sequence: number;
+};
+
+export function buildVariantSku({
+  vendorCode,
+  categoryTitle,
+  subCategoryTitle,
+  productCode,
+  variant,
+  sequence,
+}: BuildSkuOptions): string {
+  const color = extractVariantOption(variant, ["color", "colour"]);
+  const size = extractVariantOption(variant, ["size"]);
+
   return generateVariantSku({
-    vendor: vendorCode,
-    category: categoryTitle || "CAT",
-    subCategory: subCategoryTitle || "SUBCAT",
-    product: productTitle || "PRODUCT",
+    vendorCode,
+    categoryTitle,
+    subCategoryTitle,
+    productCode,
+    productSeq: productCode,
     color,
     size,
     variantNo: sequence,
   });
 }
 
-async function generateUniqueVariantSku(prisma, options, reservedSkus) {
-  for (let sequence = options.sequence; sequence < options.sequence + 1000; sequence += 1) {
-    const sku = buildServerVariantSku({ ...options, sequence });
+export async function generateUniqueVariantSku(
+  prisma: any,
+  options: BuildSkuOptions,
+  reservedSkus: Set<string>
+): Promise<string> {
+  for (let seq = options.sequence; seq < options.sequence + 500; seq += 1) {
+    const sku = buildVariantSku({ ...options, sequence: seq });
     if (reservedSkus.has(sku)) continue;
+
     const existing = await prisma.productVariant.findFirst({
       where: { OR: [{ sku }, { barcode: sku }] },
       select: { id: true },
     });
+
     if (!existing) return sku;
   }
   throw new Error("Unable to generate a unique variant SKU.");
 }
+
+export type ApplyIdentifiersParams = {
+  prisma: any;
+  payload: { variants?: VariantInputItem[]; [key: string]: unknown };
+  productData: {
+    userId: string;
+    productCode?: string | null;
+    sku?: string | null;
+    barcode?: string | null;
+    title: string;
+    [key: string]: unknown;
+  };
+  existingProduct?: {
+    id: string;
+    productCode: string;
+    sku?: string | null;
+    barcode?: string | null;
+    variants?: Array<{ id: string; sku: string; barcode: string; productCode?: string | null }>;
+  } | null;
+  categoryTitle?: string;
+  subCategoryTitle?: string;
+};
 
 export async function applyServerGeneratedProductIdentifiers({
   prisma,
@@ -151,55 +277,87 @@ export async function applyServerGeneratedProductIdentifiers({
   existingProduct = null,
   categoryTitle = "",
   subCategoryTitle = "",
-}) {
+}: ApplyIdentifiersParams): Promise<void> {
   const vendorCode = await resolveVendorCode(prisma, productData.userId);
+
   const productCode =
     cleanIdentifier(existingProduct?.productCode) ||
-    (await generateUniqueProductCode(prisma, vendorCode, categoryTitle, subCategoryTitle));
+    (await generateProductCode(prisma, vendorCode, categoryTitle, subCategoryTitle));
 
   productData.productCode = productCode;
   productData.sku = cleanIdentifier(existingProduct?.sku) || null;
-  productData.barcode = cleanIdentifier(existingProduct?.barcode) || null;
+  productData.barcode = existingProduct?.barcode || null;
 
-  const existingVariantById = new Map<string, any>((existingProduct?.variants || []).map((variant) => [variant.id, variant]));
+  const existingVariants = existingProduct?.variants || [];
+  const existingVariantById = new Map<string, { id: string; sku: string; barcode: string; productCode?: string | null }>(
+    existingVariants.map((v) => [v.id, v])
+  );
+
   const reserved = {
     sku: new Set<string>(),
     barcode: new Set<string>(),
   };
 
-  const generatedVariants = [];
-  for (const [index, variant] of (payload.variants || []).entries()) {
-    const existingVariant = variant.id ? existingVariantById.get(variant.id) : null;
-    let sku = cleanIdentifier(existingVariant?.sku);
-    const variantProductCode = cleanIdentifier(existingVariant?.productCode) || null;
-    let barcode = cleanIdentifier(existingVariant?.barcode);
+  if (!payload.variants || payload.variants.length === 0) {
+    payload.variants = [
+      {
+        title: productData.title || "Default",
+        price: Number(productData.salePrice || productData.productPrice || 0),
+        stock: Number(productData.productStock || 0),
+        isDefault: true,
+      },
+    ];
+  }
+
+  const nextVariantSequence = existingVariants.length + 1;
+  const generatedVariants: VariantInputItem[] = [];
+
+  for (let index = 0; index < (payload.variants || []).length; index += 1) {
+    const variant = payload.variants![index];
+    const existing = variant.id ? existingVariantById.get(variant.id) : null;
+
+    let sku = cleanIdentifier(existing?.sku);
+    let barcode = existing?.barcode || (variant.barcode ? String(variant.barcode).trim() : null);
 
     if (!sku) {
+      const variantSeq = existing ? index + 1 : nextVariantSequence + index;
       sku = await generateUniqueVariantSku(
         prisma,
         {
           vendorCode,
-          productTitle: productData.title,
           categoryTitle,
           subCategoryTitle,
+          productCode,
           variant,
-          sequence: index + 1,
+          sequence: variantSeq,
         },
-        reserved.sku,
+        reserved.sku
       );
     }
     reserved.sku.add(sku);
 
-    if (!barcode || reserved.barcode.has(barcode)) barcode = sku;
+    if (!barcode || !/^\d{12}$/.test(barcode)) {
+      barcode = await getNextBarcodeSequence(prisma);
+      while (reserved.barcode.has(barcode)) {
+        barcode = await getNextBarcodeSequence(prisma);
+      }
+    }
     reserved.barcode.add(barcode);
 
     generatedVariants.push({
       ...variant,
       sku,
-      productCode: variantProductCode,
+      productCode: existing?.productCode || productCode,
       barcode,
     });
   }
 
   payload.variants = generatedVariants;
+
+  if (!productData.barcode && payload.variants.length > 0) {
+    productData.barcode = payload.variants[0].barcode;
+  }
+  if (!productData.sku && payload.variants.length > 0) {
+    productData.sku = payload.variants[0].sku;
+  }
 }

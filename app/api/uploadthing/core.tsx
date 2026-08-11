@@ -1,14 +1,19 @@
 import { createUploadthing } from "uploadthing/next";
+import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
-async function requireUploadSession({ req }: { req: Request }) {
-  const { getToken } = await import("next-auth/jwt");
-  const token = await getToken({ req: req as never, secret: process.env.AUTH_SECRET });
-  if (!token?.id) {
-    throw new Error("Unauthorized");
+import { auth } from "@/auth";
+
+async function requireUploadSession() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new UploadThingError({
+      code: "FORBIDDEN",
+      message: "Please sign in before uploading files.",
+    });
   }
-  return { uploadedBy: String(token.id), role: token.role };
+  return { uploadedBy: String(session.user.id), role: session.user.role };
 }
 
 const onComplete = async ({ metadata }) => {

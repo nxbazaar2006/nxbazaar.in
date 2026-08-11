@@ -45,12 +45,50 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "productCode",
     header: "Product Code",
-    cell: ({ row }) => row.original.productCode || "—",
+    cell: ({ row }) => {
+      const code = row.original.productCode || row.original.variants?.[0]?.productCode;
+      return code ? (
+        <span className="font-mono text-xs font-semibold text-slate-200">{code}</span>
+      ) : (
+        "—"
+      );
+    },
   },
   {
     accessorKey: "sku",
     header: "SKU",
-    cell: ({ row }) => row.original.sku || "—",
+    cell: ({ row }) => {
+      const product = row.original;
+      const sku = product.sku || product.variants?.[0]?.sku;
+      if (!sku) return "—";
+      const extraVariants = (product.variants?.length || 0) - 1;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-mono text-xs font-medium text-slate-200">{sku}</span>
+          {extraVariants > 0 && (
+            <span className="text-[10px] text-cyan-400">+{extraVariants} more variant(s)</span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "barcode",
+    header: "Barcode",
+    cell: ({ row }) => {
+      const product = row.original;
+      const barcode = product.barcode || product.variants?.[0]?.barcode;
+      if (!barcode) return "—";
+      const extraVariants = (product.variants?.length || 0) - 1;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-mono text-xs font-semibold text-cyan-300">{barcode}</span>
+          {extraVariants > 0 && (
+            <span className="text-[10px] text-cyan-400/80">+{extraVariants} more</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: "category",

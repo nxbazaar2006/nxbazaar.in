@@ -99,7 +99,7 @@ export async function GET(
     const shouldApplyPartialSearch = Boolean(normalizedSearch && !exactMatch);
     const where: Prisma.ProductHistoryWhereInput = {
       productId: product.id,
-      ...(query.action ? { action: query.action } : {}),
+      ...(query.action ? { action: query.action as any } : {}),
       ...(resolvedVariantId
         ? { OR: [{ variantId: resolvedVariantId }, { variantId: null }] }
         : {}),

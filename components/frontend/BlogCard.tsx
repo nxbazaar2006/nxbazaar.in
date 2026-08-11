@@ -1,6 +1,7 @@
 import { convertIsoDateToNormal } from "@/lib/convertIsoDatetoNormal";
 import { getData } from "@/lib/getData";
 import { MoveRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -12,7 +13,7 @@ export default async function BlogCard({
   lang?: string;
 }) {
   const categoryId = training.categoryId;
-  const category = categoryId ? await getData(`categories/${categoryId}`) : null;
+  const category = training.category || (categoryId ? await getData(`categories/${categoryId}`) : null);
   const categoryTitle = category?.title || "Blog";
   const normalDate = convertIsoDateToNormal(training.createdAt);
   const hasImage =
@@ -35,10 +36,13 @@ export default async function BlogCard({
         <div className="relative overflow-hidden rounded-[18px]">
           <div className="block overflow-hidden aspect-w-16 aspect-h-9 rounded-[18px]">
             {hasImage ? (
-              <img
+              <Image
+                width={800}
+                height={450}
                 className="object-cover w-full h-48 transition-all duration-300 transform group-hover:scale-105"
                 src={training.imageUrl}
                 alt={training.title || "Blog Image"}
+                loading="lazy"
               />
             ) : (
               <div className="w-full h-48 bg-slate-200/60 flex items-center justify-center text-slate-500 font-semibold">

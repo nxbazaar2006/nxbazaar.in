@@ -84,7 +84,7 @@ export async function POST(request) {
     if (role !== "USER") {
       const redirectUrl = `verify-email?token=${token}&id=${newUser.id}`;
       const { error: sendError } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL ?? "Nxbazaar.in <noreply@nxbazaar.in.in>",
+        from: process.env.RESEND_FROM_EMAIL ?? "Nxbazaar.in <noreply@nxbazaar.in>",
         to: email,
         subject: "Verify Your Account - Nxbazaar.in",
         react: EmailTemplate({
