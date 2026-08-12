@@ -2,6 +2,7 @@
 
 import DeleteBtn from "@/components/Actions/DeleteBtn";
 import { LiquidGlassButton } from "@/components/ui/liquid-glass-button";
+import { useMutation } from "@tanstack/react-query";
 import {
   CheckCircle2,
   Clock,
@@ -46,11 +47,59 @@ type Order = {
   orderItems: OrderItem[];
 };
 
+type UpdateOrderStatusVariables = {
+  orderId: string;
+  newStatus: string;
+};
+
+type UpdateOrderStatusResponse = {
+  success: boolean;
+  message?: string;
+};
+
+async function updateOrderStatus({
+  orderId,
+  newStatus,
+}: UpdateOrderStatusVariables): Promise<UpdateOrderStatusResponse> {
+  const response = await fetch(`/api/orders/${orderId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderStatus: newStatus }),
+  });
+
+  const data = (await response.json()) as UpdateOrderStatusResponse;
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Failed to update order status");
+  }
+
+  return data;
+}
+
 export default function OrdersViewer({ initialOrders }: { initialOrders: Order[] }) {
   const [orders, setOrders] = useState<Order[]>(initialOrders || []);
   const [activeTab, setActiveTab] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const updateStatusMutation = useMutation({
+    mutationFn: updateOrderStatus,
+    onSuccess: (data, variables) => {
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === variables.orderId
+            ? { ...order, orderStatus: variables.newStatus }
+            : order,
+        ),
+      );
+      toast.success(data.message || `Order status updated to ${variables.newStatus}`);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Network error updating status");
+    },
+  });
+
+  const updatingId = updateStatusMutation.isPending
+    ? updateStatusMutation.variables?.orderId ?? null
+    : null;
 
   const statusOptions = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELED"];
 
@@ -76,28 +125,8 @@ export default function OrdersViewer({ initialOrders }: { initialOrders: Order[]
     return sum + amount;
   }, 0);
 
-  async function handleStatusChange(orderId: string, newStatus: string) {
-    setUpdatingId(orderId);
-    try {
-      const res = await fetch(`/api/orders/${orderId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderStatus: newStatus }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        toast.success(`Order status updated to ${newStatus}`);
-        setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? { ...o, orderStatus: newStatus } : o))
-        );
-      } else {
-        toast.error(data.message || "Failed to update order status");
-      }
-    } catch (err) {
-      toast.error("Network error updating status");
-    } finally {
-      setUpdatingId(null);
-    }
+  function handleStatusChange(orderId: string, newStatus: string) {
+    updateStatusMutation.mutate({ orderId, newStatus });
   }
 
   function formatCurrency(val: number = 0) {
