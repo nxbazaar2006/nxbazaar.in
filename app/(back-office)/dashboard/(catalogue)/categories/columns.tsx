@@ -5,6 +5,7 @@ import DateColumn from "@/components/DataTableColumns/DateColumn";
 import ImageColumn from "@/components/DataTableColumns/ImageColumn";
 import SortableColumn from "@/components/DataTableColumns/SortableColumn";
 import ActionColumn from "@/components/DataTableColumns/ActionColumn";
+import { getCatalogTheme } from "@/lib/theme/catalog-theme";
 import type { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<any>[] = [
@@ -29,6 +30,21 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => <SortableColumn column={column} title="Category Title" />,
+    cell: ({ row }) => {
+      const category = row.original;
+      const theme = getCatalogTheme({
+        departmentId: category.departmentId,
+        departmentSlug: category.department?.slug ?? category.departmentSlug,
+        categoryId: category.id,
+        categorySlug: category.slug,
+      });
+
+      return (
+        <span className={`nx-theme-surface ${theme.categoryClassName} inline-flex items-center rounded-full border px-3 py-1.5 font-semibold text-slate-900`}>
+          {category.title}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "slug",
