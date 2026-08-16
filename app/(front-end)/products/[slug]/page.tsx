@@ -11,6 +11,7 @@ import { GlassText } from "@/components/ui/glass-text";
 import { getData } from "@/lib/getData";
 import { resolveEffectiveHsn } from "@/lib/hsn/resolve-effective-hsn";
 import { asArray } from "@/lib/normalizeApiData";
+import { getCatalogTheme } from "@/lib/theme/catalog-theme";
 import type { HsnCodeTaxRecord } from "@/types/hsn";
 import { Send } from "lucide-react";
 import type { Metadata } from "next";
@@ -18,8 +19,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type ProductDetailData = ProductVariantSelectorProduct & {
-  category: { hsnCode: HsnCodeTaxRecord | null };
-  subCategory: { hsnCode: HsnCodeTaxRecord | null } | null;
+  categoryId?: string | null;
+  subCategoryId?: string | null;
+  departmentId?: string | null;
+  departmentSlug?: string | null;
+  category: { id?: string; slug?: string; hsnCode: HsnCodeTaxRecord | null };
+  subCategory: { id?: string; slug?: string; hsnCode: HsnCodeTaxRecord | null } | null;
   hsnCode: HsnCodeTaxRecord | null;
 };
 
@@ -90,6 +95,15 @@ export default async function ProductDetailPage({ params }) {
     subCategoryHsn: product.subCategory?.hsnCode,
   });
 
+  const theme = getCatalogTheme({
+    departmentId: product.departmentId,
+    departmentSlug: product.departmentSlug,
+    categoryId: product.categoryId ?? product.category?.id,
+    categorySlug: product.category?.slug,
+    subCategoryId: product.subCategoryId ?? product.subCategory?.id,
+    subCategorySlug: product.subCategory?.slug,
+  });
+
   const { id } = product;
   const catId = product.categoryId;
   const category = await getData<CategoryWithProducts>(`categories/${catId}`);
@@ -120,7 +134,7 @@ export default async function ProductDetailPage({ params }) {
   };
 
   return (
-    <div>
+    <div className={`${theme.subCategoryClassName} nx-catalog-theme`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -132,7 +146,7 @@ export default async function ProductDetailPage({ params }) {
           thumbnail={product.imageUrl}
           alt={product.title}
         />
-        <div className="liquid-card col-span-12 p-6 md:col-span-7 lg:col-span-6">
+        <div className="liquid-card nx-theme-surface col-span-12 p-6 md:col-span-7 lg:col-span-6">
           <div className="mb-6 flex items-start justify-between gap-4">
             <GlassText
               variant="light"
@@ -175,7 +189,7 @@ export default async function ProductDetailPage({ params }) {
           </div>
           <ProductVariantSelector product={product} />
           {product.variants?.length ? (
-            <div className="liquid-card mt-5 space-y-3 rounded-lg border border-white/55 bg-white/35 p-4 text-sm text-slate-800">
+            <div className="liquid-card nx-theme-surface mt-5 space-y-3 rounded-lg border p-4 text-sm text-slate-800">
               <h2 className="text-base font-semibold">Variant Barcodes</h2>
               <div className="space-y-3">
                 {product.variants.map((variant) => (
@@ -197,7 +211,7 @@ export default async function ProductDetailPage({ params }) {
             </div>
           ) : null}
         </div>
-        <aside className="liquid-card frontend-glass col-span-12 hidden overflow-hidden rounded-[28px] text-slate-800 md:block lg:col-span-3">
+        <aside className="liquid-card nx-theme-surface frontend-glass col-span-12 hidden overflow-hidden rounded-[28px] text-slate-800 md:block lg:col-span-3">
           <div className="p-4">
             <GlassText
               variant="light"
@@ -207,7 +221,7 @@ export default async function ProductDetailPage({ params }) {
               headingClassName="text-lg uppercase"
               className="mb-4"
             >
-              <div className="mt-4 flex items-center gap-3 rounded-lg bg-orange-400 px-4 py-2 text-slate-50">
+              <div className="nx-theme-accent-bg mt-4 flex items-center gap-3 rounded-lg px-4 py-2 text-white">
                 <span>Limi Express</span>
                 <Send />
               </div>
@@ -219,10 +233,8 @@ export default async function ProductDetailPage({ params }) {
           </div>
         </aside>
       </div>
-      {/* Product Demo Video & Related Blogs */}
       <div className="my-8 space-y-8">
-        {/* Related Articles & Buying Guide */}
-        <div className="liquid-card frontend-glass rounded-[30px] p-6 shadow-lg">
+        <div className="liquid-card nx-theme-surface frontend-glass rounded-[30px] p-6 shadow-lg">
           <GlassText
             variant="light"
             title="Product Buying Guide & Related Articles"
@@ -248,8 +260,7 @@ export default async function ProductDetailPage({ params }) {
           </div>
         </div>
 
-        {/* Similar Products */}
-        <div className="liquid-card frontend-glass rounded-[30px] p-4">
+        <div className="liquid-card nx-theme-surface frontend-glass rounded-[30px] p-4">
           <GlassText
             variant="light"
             title="Similar Products"

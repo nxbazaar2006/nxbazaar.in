@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./rainbow-theme.css";
 
 import Providers from "@/context/Providers";
 import type { Metadata, Viewport } from "next";
