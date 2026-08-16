@@ -19,6 +19,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type ProductDetailData = ProductVariantSelectorProduct & {
+  categoryId?: string | null;
+  subCategoryId?: string | null;
   departmentId?: string | null;
   departmentSlug?: string | null;
   category: { id?: string; slug?: string; hsnCode: HsnCodeTaxRecord | null };
