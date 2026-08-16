@@ -1,121 +1,59 @@
-/* NXBazaar synchronized 7-color rainbow Liquid Glass theme.
-   The animated custom property is inherited by page backgrounds and glass frames,
-   keeping the background, border and glow on the same color at the same time. */
+/* NXBazaar catalog theme: 7 main rainbow families x 12 mostly-medium shades = 84 colors. */
+@property --nx-rainbow-color { syntax: "<color>"; inherits: true; initial-value: #ef5350; }
+:root { --nx-rainbow-color: #ef5350; --nx-theme-lightness: 56%; }
 
-@property --nx-rainbow-color {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #ff3b30;
-}
+.nx-theme-red { --nx-theme-hue: 2; --nx-theme-saturation: 78%; }
+.nx-theme-orange { --nx-theme-hue: 28; --nx-theme-saturation: 88%; }
+.nx-theme-yellow { --nx-theme-hue: 48; --nx-theme-saturation: 86%; }
+.nx-theme-green { --nx-theme-hue: 142; --nx-theme-saturation: 58%; }
+.nx-theme-blue { --nx-theme-hue: 211; --nx-theme-saturation: 82%; }
+.nx-theme-indigo { --nx-theme-hue: 244; --nx-theme-saturation: 64%; }
+.nx-theme-violet { --nx-theme-hue: 278; --nx-theme-saturation: 68%; }
 
-:root {
-  --nx-rainbow-color: #ff3b30;
+/* 3 light-support + 7 medium-priority + 2 medium-deep; intentionally no dark shades. */
+.nx-theme-shade-1 { --nx-theme-lightness: 72%; }
+.nx-theme-shade-2 { --nx-theme-lightness: 69%; }
+.nx-theme-shade-3 { --nx-theme-lightness: 66%; }
+.nx-theme-shade-4 { --nx-theme-lightness: 63%; }
+.nx-theme-shade-5 { --nx-theme-lightness: 60%; }
+.nx-theme-shade-6 { --nx-theme-lightness: 58%; }
+.nx-theme-shade-7 { --nx-theme-lightness: 56%; }
+.nx-theme-shade-8 { --nx-theme-lightness: 54%; }
+.nx-theme-shade-9 { --nx-theme-lightness: 52%; }
+.nx-theme-shade-10 { --nx-theme-lightness: 50%; }
+.nx-theme-shade-11 { --nx-theme-lightness: 48%; }
+.nx-theme-shade-12 { --nx-theme-lightness: 46%; }
+
+.nx-theme-red,.nx-theme-orange,.nx-theme-yellow,.nx-theme-green,.nx-theme-blue,.nx-theme-indigo,.nx-theme-violet {
+  --nx-rainbow-color: hsl(var(--nx-theme-hue) var(--nx-theme-saturation) var(--nx-theme-lightness));
 }
 
 @keyframes nx-rainbow-theme-shift {
-  0%,
-  100% {
-    --nx-rainbow-color: #ff3b30; /* Red */
-  }
-
-  14.285% {
-    --nx-rainbow-color: #ff9500; /* Orange */
-  }
-
-  28.57% {
-    --nx-rainbow-color: #ffd60a; /* Yellow */
-  }
-
-  42.855% {
-    --nx-rainbow-color: #34c759; /* Green */
-  }
-
-  57.14% {
-    --nx-rainbow-color: #007aff; /* Blue */
-  }
-
-  71.425% {
-    --nx-rainbow-color: #4b0082; /* Indigo */
-  }
-
-  85.71% {
-    --nx-rainbow-color: #af52de; /* Violet */
-  }
+  0%,100% { --nx-rainbow-color: #ef5350; }
+  14.285% { --nx-rainbow-color: #f59e42; }
+  28.57% { --nx-rainbow-color: #e6c934; }
+  42.855% { --nx-rainbow-color: #43b86b; }
+  57.14% { --nx-rainbow-color: #3f8ee8; }
+  71.425% { --nx-rainbow-color: #6966d8; }
+  85.71% { --nx-rainbow-color: #a75bc7; }
 }
 
 body {
   animation: nx-rainbow-theme-shift 28s linear infinite;
-  background:
-    radial-gradient(
-      circle at 12% 8%,
-      color-mix(in srgb, var(--nx-rainbow-color) 30%, transparent),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--nx-rainbow-color) 20%, white),
-      transparent 40%
-    ),
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--nx-rainbow-color) 14%, #f8fcff),
-      color-mix(in srgb, var(--nx-rainbow-color) 9%, #eef6fb) 46%,
-      color-mix(in srgb, var(--nx-rainbow-color) 16%, #f8fcff)
-    );
+  background: radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--nx-rainbow-color) 30%,transparent),transparent 34%),radial-gradient(circle at 86% 18%,color-mix(in srgb,var(--nx-rainbow-color) 20%,white),transparent 40%),linear-gradient(145deg,color-mix(in srgb,var(--nx-rainbow-color) 14%,#f8fcff),color-mix(in srgb,var(--nx-rainbow-color) 9%,#eef6fb) 46%,color-mix(in srgb,var(--nx-rainbow-color) 16%,#f8fcff));
   background-attachment: fixed;
 }
 
-/* Back-office keeps its dark Liquid Glass character while following the same hue. */
-.backoffice-background {
-  --glass-border: color-mix(in srgb, var(--nx-rainbow-color) 44%, rgba(255, 255, 255, 0.34));
-  --glass-shadow:
-    0 32px 90px rgba(0, 0, 0, 0.34),
-    0 12px 34px color-mix(in srgb, var(--nx-rainbow-color) 24%, transparent);
-  background:
-    radial-gradient(
-      circle at 12% 8%,
-      color-mix(in srgb, var(--nx-rainbow-color) 34%, transparent),
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--nx-rainbow-color) 25%, #10283a),
-      transparent 36%
-    ),
-    radial-gradient(
-      circle at 76% 86%,
-      color-mix(in srgb, var(--nx-rainbow-color) 18%, transparent),
-      transparent 30%
-    ),
-    linear-gradient(145deg, #061622 0%, #09283b 38%, #06131f 100%);
-}
+/* Catalog wrappers use their assigned department/category/subcategory color instead of the default cycle. */
+.nx-catalog-theme { animation: none; --nx-rainbow-color: hsl(var(--nx-theme-hue) var(--nx-theme-saturation) var(--nx-theme-lightness)); }
+.nx-theme-surface { border-color: color-mix(in srgb,var(--nx-rainbow-color) 52%,rgba(255,255,255,.5)); background: linear-gradient(135deg,color-mix(in srgb,var(--nx-rainbow-color) 18%,rgba(255,255,255,.78)),color-mix(in srgb,var(--nx-rainbow-color) 8%,rgba(255,255,255,.58))); box-shadow: inset 0 1px 0 rgba(255,255,255,.62),0 12px 34px color-mix(in srgb,var(--nx-rainbow-color) 18%,transparent); }
+.nx-theme-accent { color: var(--nx-rainbow-color); }
+.nx-theme-accent-bg { background-color: var(--nx-rainbow-color); }
+.nx-theme-accent-border { border-color: var(--nx-rainbow-color); }
 
-/* Shared frame hook plus existing back-office Liquid Glass surfaces. */
-.nx-liquid-frame,
-.backoffice-glass,
-.backoffice-background .liquid-card {
-  border-color: color-mix(in srgb, var(--nx-rainbow-color) 48%, rgba(255, 255, 255, 0.42));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.34),
-    0 0 22px color-mix(in srgb, var(--nx-rainbow-color) 32%, transparent),
-    0 0 54px color-mix(in srgb, var(--nx-rainbow-color) 15%, transparent),
-    var(--glass-shadow, 0 24px 64px rgba(7, 53, 76, 0.18));
-}
+/* Frontend and dashboard share the active hue. Dashboard uses medium/light surfaces, not dark theme colors. */
+.backoffice-background { --glass-border: color-mix(in srgb,var(--nx-rainbow-color) 44%,rgba(255,255,255,.34)); --glass-shadow: 0 32px 90px rgba(0,0,0,.20),0 12px 34px color-mix(in srgb,var(--nx-rainbow-color) 24%,transparent); background: radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--nx-rainbow-color) 32%,transparent),transparent 32%),radial-gradient(circle at 86% 18%,color-mix(in srgb,var(--nx-rainbow-color) 22%,#dcecf3),transparent 36%),linear-gradient(145deg,color-mix(in srgb,var(--nx-rainbow-color) 13%,#edf7fa),color-mix(in srgb,var(--nx-rainbow-color) 18%,#dcecf3) 45%,color-mix(in srgb,var(--nx-rainbow-color) 10%,#f5fbfc)); }
+.nx-liquid-frame,.backoffice-glass,.backoffice-background .liquid-card { border-color: color-mix(in srgb,var(--nx-rainbow-color) 48%,rgba(255,255,255,.42)); box-shadow: inset 0 1px 0 rgba(255,255,255,.34),inset 0 -1px 0 rgba(0,0,0,.12),0 0 22px color-mix(in srgb,var(--nx-rainbow-color) 30%,transparent),0 0 54px color-mix(in srgb,var(--nx-rainbow-color) 14%,transparent),var(--glass-shadow,0 24px 64px rgba(7,53,76,.14)); }
+.nx-liquid-frame { background: linear-gradient(135deg,color-mix(in srgb,var(--nx-rainbow-color) 14%,rgba(255,255,255,.28)),rgba(255,255,255,.12)); backdrop-filter: blur(24px) saturate(165%); -webkit-backdrop-filter: blur(24px) saturate(165%); }
 
-.nx-liquid-frame {
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--nx-rainbow-color) 14%, rgba(255, 255, 255, 0.16)),
-      rgba(255, 255, 255, 0.08)
-    );
-  backdrop-filter: blur(24px) saturate(165%);
-  -webkit-backdrop-filter: blur(24px) saturate(165%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body {
-    animation: none;
-  }
-}
+@media (prefers-reduced-motion: reduce) { body { animation: none; } }
