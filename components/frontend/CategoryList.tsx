@@ -1,4 +1,5 @@
 import { GlassText } from "@/components/ui/glass-text";
+import { getCatalogTheme } from "@/lib/theme/catalog-theme";
 import Link from "next/link";
 import CategoryCarousel from "./CategoryCarousel";
 
@@ -9,9 +10,16 @@ export default function CategoryList({
   category: any;
   isMarketPage?: boolean;
 }) {
+  const theme = getCatalogTheme({
+    departmentId: category.departmentId,
+    departmentSlug: category.department?.slug ?? category.departmentSlug,
+    categoryId: category.id,
+    categorySlug: category.slug,
+  });
+
   return (
-    <div className="w-full">
-      <div className="flex flex-col gap-3 pb-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/25">
+    <div className={`nx-theme-surface ${theme.categoryClassName} w-full rounded-[28px] border p-4 sm:p-5`}>
+      <div className="flex flex-col gap-3 pb-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/35">
         <GlassText
           variant="light"
           title={category.title}
@@ -21,7 +29,7 @@ export default function CategoryList({
           className="w-full"
         />
         <Link
-          className="rounded-full bg-slate-900 px-5 py-2 text-center text-xs font-bold text-white transition-all duration-300 hover:bg-slate-800 shrink-0"
+          className="nx-theme-accent-bg rounded-full px-5 py-2 text-center text-xs font-bold text-white shadow-sm transition-all duration-300 hover:brightness-105 shrink-0"
           href={`/category/${category.slug}`}
         >
           See All
