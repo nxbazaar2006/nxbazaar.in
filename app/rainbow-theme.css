@@ -1,0 +1,121 @@
+/* NXBazaar synchronized 7-color rainbow Liquid Glass theme.
+   The animated custom property is inherited by page backgrounds and glass frames,
+   keeping the background, border and glow on the same color at the same time. */
+
+@property --nx-rainbow-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ff3b30;
+}
+
+:root {
+  --nx-rainbow-color: #ff3b30;
+}
+
+@keyframes nx-rainbow-theme-shift {
+  0%,
+  100% {
+    --nx-rainbow-color: #ff3b30; /* Red */
+  }
+
+  14.285% {
+    --nx-rainbow-color: #ff9500; /* Orange */
+  }
+
+  28.57% {
+    --nx-rainbow-color: #ffd60a; /* Yellow */
+  }
+
+  42.855% {
+    --nx-rainbow-color: #34c759; /* Green */
+  }
+
+  57.14% {
+    --nx-rainbow-color: #007aff; /* Blue */
+  }
+
+  71.425% {
+    --nx-rainbow-color: #4b0082; /* Indigo */
+  }
+
+  85.71% {
+    --nx-rainbow-color: #af52de; /* Violet */
+  }
+}
+
+body {
+  animation: nx-rainbow-theme-shift 28s linear infinite;
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      color-mix(in srgb, var(--nx-rainbow-color) 30%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 86% 18%,
+      color-mix(in srgb, var(--nx-rainbow-color) 20%, white),
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--nx-rainbow-color) 14%, #f8fcff),
+      color-mix(in srgb, var(--nx-rainbow-color) 9%, #eef6fb) 46%,
+      color-mix(in srgb, var(--nx-rainbow-color) 16%, #f8fcff)
+    );
+  background-attachment: fixed;
+}
+
+/* Back-office keeps its dark Liquid Glass character while following the same hue. */
+.backoffice-background {
+  --glass-border: color-mix(in srgb, var(--nx-rainbow-color) 44%, rgba(255, 255, 255, 0.34));
+  --glass-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.34),
+    0 12px 34px color-mix(in srgb, var(--nx-rainbow-color) 24%, transparent);
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      color-mix(in srgb, var(--nx-rainbow-color) 34%, transparent),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 86% 18%,
+      color-mix(in srgb, var(--nx-rainbow-color) 25%, #10283a),
+      transparent 36%
+    ),
+    radial-gradient(
+      circle at 76% 86%,
+      color-mix(in srgb, var(--nx-rainbow-color) 18%, transparent),
+      transparent 30%
+    ),
+    linear-gradient(145deg, #061622 0%, #09283b 38%, #06131f 100%);
+}
+
+/* Shared frame hook plus existing back-office Liquid Glass surfaces. */
+.nx-liquid-frame,
+.backoffice-glass,
+.backoffice-background .liquid-card {
+  border-color: color-mix(in srgb, var(--nx-rainbow-color) 48%, rgba(255, 255, 255, 0.42));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34),
+    0 0 22px color-mix(in srgb, var(--nx-rainbow-color) 32%, transparent),
+    0 0 54px color-mix(in srgb, var(--nx-rainbow-color) 15%, transparent),
+    var(--glass-shadow, 0 24px 64px rgba(7, 53, 76, 0.18));
+}
+
+.nx-liquid-frame {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--nx-rainbow-color) 14%, rgba(255, 255, 255, 0.16)),
+      rgba(255, 255, 255, 0.08)
+    );
+  backdrop-filter: blur(24px) saturate(165%);
+  -webkit-backdrop-filter: blur(24px) saturate(165%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
+}
