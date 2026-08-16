@@ -1,4 +1,5 @@
 import FormHeader from "@/components/backoffice/FormHeader";
+import ThemePaletteManager from "@/components/backoffice/ThemePaletteManager";
 import {
   Bell,
   CreditCard,
@@ -45,7 +46,7 @@ const settingSections = [
     title: "Appearance",
     description: "Adjust dashboard display preferences for daily operations.",
     icon: Palette,
-    items: ["Theme", "Density", "Table view"],
+    items: ["84-color catalog theme", "Density", "Table view"],
   },
 ];
 
@@ -68,7 +69,7 @@ export default function SettingsPage() {
                 Manage NXBazaar settings
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Keep account, store, security, and operational preferences organized from one dashboard.
+                Keep account, store, security, operational preferences, and catalog color identity organized from one dashboard.
               </p>
             </div>
           </div>
@@ -81,6 +82,8 @@ export default function SettingsPage() {
           </div>
         </div>
       </section>
+
+      <ThemePaletteManager />
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {settingSections.map((section) => {
@@ -113,7 +116,7 @@ export default function SettingsPage() {
                   >
                     <span>{item}</span>
                     <span className="rounded-full bg-slate-950/5 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-500 dark:bg-white/10 dark:text-white/55">
-                      Soon
+                      {item === "84-color catalog theme" ? "Active" : "Soon"}
                     </span>
                   </div>
                 ))}
@@ -125,4 +128,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
